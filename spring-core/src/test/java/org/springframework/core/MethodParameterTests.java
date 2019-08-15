@@ -22,6 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 import org.junit.Before;
@@ -31,9 +32,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
+ * Tests for {@link MethodParameter}.
+ *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author Phillip Webb
  */
 public class MethodParameterTests {
 
@@ -149,6 +153,88 @@ public class MethodParameterTests {
 		assertThat(methodParameter.getGenericParameterType()).isEqualTo(ResolvableType.forClassWithGenerics(Callable.class, Integer.class).getType());
 	}
 
+	@Test
+	@Deprecated
+	public void multipleResolveParameterTypeCalls() throws Exception {
+		Method method = ArrayList.class.getMethod("get", int.class);
+		MethodParameter methodParameter = MethodParameter.forExecutable(method, -1);
+		assertThat(methodParameter.getParameterType()).isEqualTo(Object.class);
+		GenericTypeResolver.resolveParameterType(methodParameter, StringList.class);
+		assertThat(methodParameter.getParameterType()).isEqualTo(String.class);
+		GenericTypeResolver.resolveParameterType(methodParameter, IntegerList.class);
+		assertThat(methodParameter.getParameterType()).isEqualTo(Integer.class);
+	}
+
+	@Test
+	public void equalsAndHashCodeConsidersContainingClass() throws Exception {
+		Method method = ArrayList.class.getMethod("get", int.class);
+		MethodParameter m1 = MethodParameter.forExecutable(method, -1);
+		MethodParameter m2 = MethodParameter.forExecutable(method, -1);
+		MethodParameter m3 = MethodParameter.forExecutable(method, -1).nested();
+		assertThat(m1).isEqualTo(m2).isNotEqualTo(m3);
+		assertThat(m1.hashCode()).isEqualTo(m2.hashCode());
+	}
+
+	@Test
+	public void equalsAndHashCodeConsidersNesting() throws Exception {
+		Method method = ArrayList.class.getMethod("get", int.class);
+		MethodParameter m1 = MethodParameter.forExecutable(method, -1)
+				.withContainingClass(StringList.class);
+		MethodParameter m2 = MethodParameter.forExecutable(method, -1)
+				.withContainingClass(StringList.class);
+		MethodParameter m3 = MethodParameter.forExecutable(method, -1)
+				.withContainingClass(IntegerList.class);
+		MethodParameter m4 = MethodParameter.forExecutable(method, -1);
+		assertThat(m1).isEqualTo(m2).isNotEqualTo(m3).isNotEqualTo(m4);
+		assertThat(m1.hashCode()).isEqualTo(m2.hashCode());
+	}
+
+	public void withContainingClassReturnsNewInstance() throws Exception {
+		Method method = ArrayList.class.getMethod("get", int.class);
+		MethodParameter m1 = MethodParameter.forExecutable(method, -1);
+		MethodParameter m2 = m1.withContainingClass(StringList.class);
+		MethodParameter m3 = m1.withContainingClass(IntegerList.class);
+		assertThat(m1).isNotSameAs(m2).isNotSameAs(m3);
+		assertThat(m1.getParameterType()).isEqualTo(Object.class);
+		assertThat(m2.getParameterType()).isEqualTo(String.class);
+		assertThat(m3.getParameterType()).isEqualTo(Integer.class);
+	}
+
+	@Test
+	public void withTypeIndexReturnsNewInstance() throws Exception {
+		Method method = ArrayList.class.getMethod("get", int.class);
+		MethodParameter m1 = MethodParameter.forExecutable(method, -1);
+		MethodParameter m2 = m1.withTypeIndex(2);
+		MethodParameter m3 = m1.withTypeIndex(3);
+		assertThat(m1).isNotSameAs(m2).isNotSameAs(m3);
+		assertThat(m1.getTypeIndexForCurrentLevel()).isNull();
+		assertThat(m2.getTypeIndexForCurrentLevel()).isEqualTo(2);
+		assertThat(m3.getTypeIndexForCurrentLevel()).isEqualTo(3);
+	}
+
+	@Test
+	@SuppressWarnings("deprecation")
+	public void mutatingNestingLevelShouldNotChangeNewInstance() throws Exception {
+		Method method = ArrayList.class.getMethod("get", int.class);
+		MethodParameter m1 = MethodParameter.forExecutable(method, -1);
+		MethodParameter m2 = m1.withTypeIndex(2);
+		assertThat(m2.getTypeIndexForCurrentLevel()).isEqualTo(2);
+		m1.setTypeIndexForCurrentLevel(1);
+		m2.decreaseNestingLevel();
+		assertThat(m2.getTypeIndexForCurrentLevel()).isNull();
+	}
+
+	@Test
+	public void nestedWithTypeIndexReturnsNewInstance() throws Exception {
+		Method method = ArrayList.class.getMethod("get", int.class);
+		MethodParameter m1 = MethodParameter.forExecutable(method, -1);
+		MethodParameter m2 = m1.nested(2);
+		MethodParameter m3 = m1.nested(3);
+		assertThat(m1).isNotSameAs(m2).isNotSameAs(m3);
+		assertThat(m1.getTypeIndexForCurrentLevel()).isNull();
+		assertThat(m2.getTypeIndexForCurrentLevel()).isEqualTo(2);
+		assertThat(m3.getTypeIndexForCurrentLevel()).isEqualTo(3);
+	}
 
 	public int method(String p1, long p2) {
 		return 42;
@@ -171,6 +257,14 @@ public class MethodParameterTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.PARAMETER)
 	private @interface Param {
+	}
+
+	@SuppressWarnings("serial")
+	private static class StringList extends ArrayList<String> {
+	}
+
+	@SuppressWarnings("serial")
+	private static class IntegerList extends ArrayList<Integer> {
 	}
 
 }

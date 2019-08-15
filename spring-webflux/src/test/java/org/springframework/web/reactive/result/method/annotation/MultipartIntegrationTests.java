@@ -16,6 +16,10 @@
 
 package org.springframework.web.reactive.result.method.annotation;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +35,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -80,7 +85,7 @@ public class MultipartIntegrationTests extends AbstractHttpHandlerIntegrationTes
 		Mono<ClientResponse> result = webClient
 				.post()
 				.uri("/requestPart")
-				.syncBody(generateBody())
+				.body(generateBody())
 				.exchange();
 
 		StepVerifier
@@ -94,7 +99,7 @@ public class MultipartIntegrationTests extends AbstractHttpHandlerIntegrationTes
 		Mono<String> result = webClient
 				.post()
 				.uri("/requestBodyMap")
-				.syncBody(generateBody())
+				.body(generateBody())
 				.retrieve()
 				.bodyToMono(String.class);
 
@@ -108,7 +113,7 @@ public class MultipartIntegrationTests extends AbstractHttpHandlerIntegrationTes
 		Mono<String> result = webClient
 				.post()
 				.uri("/requestBodyFlux")
-				.syncBody(generateBody())
+				.body(generateBody())
 				.retrieve()
 				.bodyToMono(String.class);
 
@@ -122,7 +127,7 @@ public class MultipartIntegrationTests extends AbstractHttpHandlerIntegrationTes
 		Mono<String> result = webClient
 				.post()
 				.uri("/filePartFlux")
-				.syncBody(generateBody())
+				.body(generateBody())
 				.retrieve()
 				.bodyToMono(String.class);
 
@@ -136,7 +141,7 @@ public class MultipartIntegrationTests extends AbstractHttpHandlerIntegrationTes
 		Mono<String> result = webClient
 				.post()
 				.uri("/filePartMono")
-				.syncBody(generateBody())
+				.body(generateBody())
 				.retrieve()
 				.bodyToMono(String.class);
 
@@ -146,11 +151,39 @@ public class MultipartIntegrationTests extends AbstractHttpHandlerIntegrationTes
 	}
 
 	@Test
+	public void transferTo() {
+		Flux<String> result = webClient
+				.post()
+				.uri("/transferTo")
+				.body(generateBody())
+				.retrieve()
+				.bodyToFlux(String.class);
+
+		StepVerifier.create(result)
+				.consumeNextWith(filename -> verifyContents(Paths.get(filename), new ClassPathResource("foo.txt", MultipartHttpMessageReader.class)))
+				.consumeNextWith(filename -> verifyContents(Paths.get(filename), new ClassPathResource("logo.png", getClass())))
+				.verifyComplete();
+
+	}
+
+	private static void verifyContents(Path tempFile, Resource resource) {
+		try {
+			byte[] tempBytes = Files.readAllBytes(tempFile);
+			byte[] resourceBytes = Files.readAllBytes(resource.getFile().toPath());
+			assertThat(tempBytes).isEqualTo(resourceBytes);
+		}
+		catch (IOException ex) {
+			throw new AssertionError(ex);
+		}
+	}
+
+
+	@Test
 	public void modelAttribute() {
 		Mono<String> result = webClient
 				.post()
 				.uri("/modelAttribute")
-				.syncBody(generateBody())
+				.body(generateBody())
 				.retrieve()
 				.bodyToMono(String.class);
 
@@ -215,6 +248,21 @@ public class MultipartIntegrationTests extends AbstractHttpHandlerIntegrationTes
 		@PostMapping("/filePartMono")
 		Mono<String> filePartsFlux(@RequestPart("fileParts") Mono<FilePart> parts) {
 			return partFluxDescription(Flux.from(parts));
+		}
+
+		@PostMapping("/transferTo")
+		Flux<String> transferTo(@RequestPart("fileParts") Flux<FilePart> parts) {
+			return parts.flatMap(filePart -> {
+				try {
+					Path tempFile = Files.createTempFile("MultipartIntegrationTests", filePart.filename());
+					return filePart.transferTo(tempFile)
+							.then(Mono.just(tempFile.toString() + "\n"));
+
+				}
+				catch (IOException e) {
+					return Mono.error(e);
+				}
+			});
 		}
 
 		@PostMapping("/modelAttribute")

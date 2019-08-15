@@ -7,8 +7,6 @@ dependencyManagement {
 	}
 }
 
-def rsocketVersion = "0.12.2-RC4-SNAPSHOT"
-
 dependencies {
 	compile(project(":spring-beans"))
 	compile(project(":spring-core"))
@@ -20,12 +18,12 @@ dependencies {
 	optional("io.rsocket:rsocket-transport-netty:${rsocketVersion}")
 	optional("com.fasterxml.jackson.core:jackson-databind:${jackson2Version}")
 	optional("javax.xml.bind:jaxb-api:2.3.1")
-	optional("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
-	optional("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
+	optional("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+	optional("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	testCompile("javax.inject:javax.inject-tck:1")
 	testCompile("javax.servlet:javax.servlet-api:4.0.1")
 	testCompile("javax.validation:validation-api:1.1.0.Final")
-	testCompile("com.thoughtworks.xstream:xstream:1.4.10")
+	testCompile("com.thoughtworks.xstream:xstream:1.4.11.1")
 	testCompile("org.apache.activemq:activemq-broker:5.8.0")
 	testCompile("org.apache.activemq:activemq-kahadb-store:5.8.0") {
 		exclude group: "org.springframework", module: "spring-context"
@@ -33,8 +31,8 @@ dependencies {
 	testCompile("org.apache.activemq:activemq-stomp:5.8.0")
 	testCompile("io.projectreactor:reactor-test")
 	testCompile "io.reactivex.rxjava2:rxjava:${rxjava2Version}"
-	testCompile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
-	testCompile("org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
+	testCompile("org.jetbrains.kotlin:kotlin-reflect")
+	testCompile("org.jetbrains.kotlin:kotlin-stdlib")
 	testCompile("org.xmlunit:xmlunit-assertj:2.6.2")
 	testCompile("org.xmlunit:xmlunit-matchers:2.6.2")
 	testCompile(project(":spring-core-coroutines"))

@@ -143,7 +143,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	@Override
 	public Resource getResource(String location) {
 		Assert.notNull(location, "Location must not be null");
-
+		// 这里可以理解为 resourceLoader 委托 ProtocolResolver 实现资源的获取，ProtocolResolver 是一个 SPI 接口
 		for (ProtocolResolver protocolResolver : this.protocolResolvers) {
 			Resource resource = protocolResolver.resolve(location, this);
 			if (resource != null) {

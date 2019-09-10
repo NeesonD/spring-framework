@@ -586,16 +586,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		this.closed.set(false);
 		this.active.set(true);
 
-		if (logger.isDebugEnabled()) {
-			if (logger.isTraceEnabled()) {
-				logger.trace("Refreshing " + this);
-			}
-			else {
-				logger.debug("Refreshing " + getDisplayName());
-			}
-		}
+//		if (logger.isDebugEnabled()) {
+//			if (logger.isTraceEnabled()) {
+//				logger.trace("Refreshing " + this);
+//			}
+//			else {
+//				logger.debug("Refreshing " + getDisplayName());
+//			}
+//		}
 
 		// Initialize any placeholder property sources in the context environment.
+		//初始化context environment（上下文环境）中的占位符属性来源
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:

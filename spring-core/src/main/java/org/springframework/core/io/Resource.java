@@ -42,12 +42,12 @@ import org.springframework.lang.Nullable;
  * @see #getFile()
  * @see WritableResource
  * @see ContextResource
- * @see UrlResource
+ * @see UrlResource ：对 java.net.URL类型资源的封装
  * @see FileUrlResource
- * @see FileSystemResource
- * @see ClassPathResource
- * @see ByteArrayResource
- * @see InputStreamResource
+ * @see FileSystemResource ：对 java.io.File 类型资源的封装
+ * @see ClassPathResource ：class path 类型资源的实现
+ * @see ByteArrayResource ：对字节数组提供的数据的封装
+ * @see InputStreamResource ：将给定的 InputStream 作为一种资源的 Resource 的实现类
  */
 public interface Resource extends InputStreamSource {
 

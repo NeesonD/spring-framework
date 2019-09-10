@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import com.sun.org.apache.xalan.internal.xsltc.compiler.util.ClassGenerator;
 import org.springframework.asm.ClassReader;
 import org.springframework.cglib.core.internal.Function;
 import org.springframework.cglib.core.internal.LoadingCache;

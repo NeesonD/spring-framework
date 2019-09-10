@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import io.netty.buffer.ByteBuf;
@@ -200,6 +201,13 @@ public class DataBufferUtilsTests extends AbstractDataBufferAllocatingTestCase {
 		BaseSubscriber<DataBuffer> subscriber = new ZeroDemandSubscriber();
 		flux.subscribe(subscriber);
 		subscriber.cancel();
+	}
+
+	@Test
+	public void readPath() throws IOException {
+		Flux<DataBuffer> flux = DataBufferUtils.read(this.resource.getFile().toPath(), this.bufferFactory, 3);
+
+		verifyReadData(flux);
 	}
 
 	@Test
@@ -472,6 +480,21 @@ public class DataBufferUtilsTests extends AbstractDataBufferAllocatingTestCase {
 		channel.close();
 
 		flux.subscribe(DataBufferUtils::release);
+	}
+
+	@Test
+	public void writePath() throws IOException {
+		DataBuffer foo = stringBuffer("foo");
+		DataBuffer bar = stringBuffer("bar");
+		Flux<DataBuffer> flux = Flux.just(foo, bar);
+
+		Mono<Void> result = DataBufferUtils.write(flux, tempFile);
+
+		StepVerifier.create(result)
+				.verifyComplete();
+
+		List<String> written = Files.readAllLines(tempFile);
+		assertThat(written).contains("foobar");
 	}
 
 	@Test
@@ -784,127 +807,6 @@ public class DataBufferUtilsTests extends AbstractDataBufferAllocatingTestCase {
 		assertThat(result).isEqualTo(-1);
 
 		release(foo);
-	}
-
-	@Test
-	public void split() {
-		Mono<DataBuffer> source =
-				deferStringBuffer("--foo--bar--baz--");
-
-		byte[] delimiter = "--".getBytes(StandardCharsets.UTF_8);
-
-		Flux<DataBuffer> result = DataBufferUtils.split(source, delimiter);
-
-		StepVerifier.create(result)
-				.consumeNextWith(stringConsumer(""))
-				.consumeNextWith(stringConsumer("foo"))
-				.consumeNextWith(stringConsumer("bar"))
-				.consumeNextWith(stringConsumer("baz"))
-				.verifyComplete();
-	}
-
-	@Test
-	public void splitIncludeDelimiter() {
-		Mono<DataBuffer> source =
-				deferStringBuffer("--foo--bar--baz--");
-
-		byte[] delimiter = "--".getBytes(StandardCharsets.UTF_8);
-
-		Flux<DataBuffer> result = DataBufferUtils.split(source, delimiter, false);
-
-		StepVerifier.create(result)
-				.consumeNextWith(stringConsumer("--"))
-				.consumeNextWith(stringConsumer("foo--"))
-				.consumeNextWith(stringConsumer("bar--"))
-				.consumeNextWith(stringConsumer("baz--"))
-				.verifyComplete();
-	}
-
-	@Test
-	public void splitMultipleDelimiters() {
-		Mono<DataBuffer> source =
-				deferStringBuffer("foo␤bar␍␤baz␤");
-
-		byte[][] delimiters = new byte[][]{
-				"␤".getBytes(StandardCharsets.UTF_8),
-				"␍␤".getBytes(StandardCharsets.UTF_8)
-		};
-
-		Flux<DataBuffer> result = DataBufferUtils.split(source, delimiters, false);
-
-		StepVerifier.create(result)
-				.consumeNextWith(stringConsumer("foo␤"))
-				.consumeNextWith(stringConsumer("bar␍␤"))
-				.consumeNextWith(stringConsumer("baz␤"))
-				.verifyComplete();
-	}
-
-	@Test
-	public void splitErrors() {
-		Flux<DataBuffer> source = Flux.concat(
-				deferStringBuffer("foo--"),
-				deferStringBuffer("bar--"),
-				Mono.error(new RuntimeException())
-		);
-		byte[] delimiter = "--".getBytes(StandardCharsets.UTF_8);
-
-		Flux<DataBuffer> result = DataBufferUtils.split(source, delimiter);
-
-		StepVerifier.create(result)
-				.consumeNextWith(stringConsumer("foo"))
-				.consumeNextWith(stringConsumer("bar"))
-				.expectError(RuntimeException.class)
-				.verify();
-	}
-
-	@Test
-	public void splitCanceled() {
-		Flux<DataBuffer> source = Flux.concat(
-				deferStringBuffer("foo--"),
-				deferStringBuffer("bar--"),
-				deferStringBuffer("baz")
-		);
-		byte[] delimiter = "--".getBytes(StandardCharsets.UTF_8);
-
-		Flux<DataBuffer> result = DataBufferUtils.split(source, delimiter);
-
-		StepVerifier.create(result)
-				.thenCancel()
-				.verify();
-	}
-
-
-	@Test
-	public void splitWithoutDemand() {
-		Flux<DataBuffer> source = Flux.concat(
-				deferStringBuffer("foo--"),
-				deferStringBuffer("bar--")
-		);
-		byte[] delimiter = "--".getBytes(StandardCharsets.UTF_8);
-
-		Flux<DataBuffer> result = DataBufferUtils.split(source, delimiter);
-
-		BaseSubscriber<DataBuffer> subscriber = new ZeroDemandSubscriber();
-		result.subscribe(subscriber);
-		subscriber.cancel();
-	}
-
-	@Test
-	public void splitAcrossBuffer() {
-		Flux<DataBuffer> source = Flux.concat(
-				deferStringBuffer("foo-"),
-				deferStringBuffer("-bar-"),
-				deferStringBuffer("-baz"));
-
-		byte[] delimiter = "--".getBytes(StandardCharsets.UTF_8);
-
-		Flux<DataBuffer> result = DataBufferUtils.split(source, delimiter);
-
-		StepVerifier.create(result)
-				.consumeNextWith(stringConsumer("foo"))
-				.consumeNextWith(stringConsumer("bar"))
-				.consumeNextWith(stringConsumer("baz"))
-				.verifyComplete();
 	}
 
 

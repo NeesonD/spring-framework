@@ -131,8 +131,8 @@ since the later requires a reference to the outer class.
 
 The Spring Framework also takes advantage of https://kotlinlang.org/docs/reference/null-safety.html[Kotlin null-safety]
 to determine if a HTTP parameter is required without having to explicitly
-define the `required` attribute.  That means `@RequestParam name: String?` is treated
-as not required and, conversely,  `@RequestParam name: String` is treated as being required.
+define the `required` attribute. That means `@RequestParam name: String?` is treated
+as not required and, conversely, `@RequestParam name: String` is treated as being required.
 This feature is also supported on the Spring Messaging `@Header` annotation.
 
 In a similar fashion, Spring bean injection with `@Autowired`, `@Bean`, or `@Inject` uses
@@ -337,39 +337,49 @@ mockMvc.get("/person/{name}", "Lee") {
 
 === Kotlin Script Templates
 
-As of version 4.3, Spring Framework provides a
+Spring Framework provides a
 https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/servlet/view/script/ScriptTemplateView.html[`ScriptTemplateView`]
-to render templates by using script engines. It supports
-https://www.jcp.org/en/jsr/detail?id=223[JSR-223].
-Spring Framework 5 goes even further by extending this feature to WebFlux and supporting
-https://jira.spring.io/browse/SPR-15064[i18n and nested templates].
+which supports https://www.jcp.org/en/jsr/detail?id=223[JSR-223] to render templates by using script engines.
 
-Kotlin provides similar support and allows the rendering of Kotlin-based templates. See
-https://github.com/spring-projects/spring-framework/commit/badde3a479a53e1dd0777dd1bd5b55cb1021cf9e[this commit] for details.
+By leveraging `kotlin-script-runtime` and `scripting-jsr223-embeddable` dependencies, it
+is possible to use such feature to render Kotlin-based templates with
+https://github.com/Kotlin/kotlinx.html[kotlinx.html] DSL or Kotlin multiline interpolated `String`.
 
-This enables some interesting use cases - such as writing type-safe templates by using
-https://github.com/Kotlin/kotlinx.html[kotlinx.html] DSL or by a using Kotlin multiline `String` with interpolation.
-
-This can let you write Kotlin templates with full autocompletion and
-refactoring support in a supported IDE, as the following example shows:
-
+`build.gradle.kts`
 [source,kotlin,indent=0]
 ----
-	import io.spring.demo.*
-
-	"""
-	${include("header")}
-	<h1>${i18n("title")}</h1>
-	<ul>
-	${users.joinToLine{ "<li>${i18n("user")} ${it.firstname} ${it.lastname}</li>" }}
-	</ul>
-	${include("footer")}
-	"""
+dependencies {
+	compile("org.jetbrains.kotlin:kotlin-script-runtime:${kotlinVersion}")
+	runtime("org.jetbrains.kotlin:kotlin-scripting-jsr223-embeddable:${kotlinVersion}")
+}
 ----
 
-WARNING: Kotlin Script Templates support is experimental and not compatible yet with Spring Boot fatjar mechanism, see related
-https://youtrack.jetbrains.com/issue/KT-21443[KT-21443] and https://youtrack.jetbrains.com/issue/KT-27956[KT-27956]
-issues.
+Configuration is usually done with `ScriptTemplateConfigurer` and `ScriptTemplateViewResolver`
+beans.
+
+
+`KotlinScriptConfiguration.kt`
+[source,kotlin,indent=0]
+----
+@Configuration
+class KotlinScriptConfiguration {
+
+    @Bean
+	fun kotlinScriptConfigurer() = ScriptTemplateConfigurer().apply {
+		engineName = "kotlin"
+		setScripts("scripts/render.kts")
+		renderFunction = "render"
+		isSharedEngine = false
+	}
+
+    @Bean
+    fun kotlinScriptViewResolver() = ScriptTemplateViewResolver().apply {
+        setPrefix("templates/")
+        setSuffix(".kts")
+    }
+}
+----
+
 
 See the https://github.com/sdeleuze/kotlin-script-templating[kotlin-script-templating] example
 project for more details.
@@ -391,6 +401,23 @@ Spring Framework provides support for Coroutines on the following scope:
 * WebFlux.fn {doc-root}/spring-framework/docs/{spring-version}/kdoc-api/spring-framework/org.springframework.web.reactive.function.server/co-router.html[coRouter { }] DSL
 * Suspending function and `Flow` support in RSocket `@MessageMapping` annotated methods
 * Extensions for {doc-root}/spring-framework/docs/{spring-version}/kdoc-api/spring-framework/org.springframework.messaging.rsocket/index.html[`RSocketRequester`]
+
+=== Dependencies
+
+Coroutines support is enabled when `kotlinx-coroutines-core` and `kotlinx-coroutines-reactor`
+dependencies are in the classpath:
+
+`build.gradle.kts`
+[source,kotlin,indent=0]
+----
+dependencies {
+
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
+}
+----
+
+Version `1.3.0` and above are supported.
 
 === How Reactive translates to Coroutines?
 
@@ -516,7 +543,7 @@ class CoroutinesViewController(banner: Banner) {
 
 === WebFlux.fn
 
-Here is an example of Coroutines router definined via the {doc-root}/spring-framework/docs/{spring-version}/kdoc-api/spring-framework/org.springframework.web.reactive.function.server/co-router.html[coRouter { }] DSL and related handlers.
+Here is an example of Coroutines router defined via the {doc-root}/spring-framework/docs/{spring-version}/kdoc-api/spring-framework/org.springframework.web.reactive.function.server/co-router.html[coRouter { }] DSL and related handlers.
 
 [source,kotlin,indent=0]
 ----
@@ -768,6 +795,9 @@ all HTTP methods will be matched, not only the `GET` one.
 This section addresses testing with the combination of Kotlin and Spring Framework.
 The recommended testing framework is https://junit.org/junit5/[JUnit 5], as well as
 https://mockk.io/[Mockk] for mocking.
+
+NOTE: If you are using Spring Boot, see
+https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-kotlin-testing[this related documentation].
 
 ==== Constructor injection
 

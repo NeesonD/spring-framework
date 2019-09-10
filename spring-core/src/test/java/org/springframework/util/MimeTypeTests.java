@@ -286,6 +286,12 @@ public class MimeTypeTests {
 	}
 
 	@Test
+	public void parseMimeTypeNull() {
+		assertThatExceptionOfType(InvalidMimeTypeException.class).isThrownBy(() ->
+				MimeTypeUtils.parseMimeType(null));
+	}
+
+	@Test
 	public void parseMimeTypes() {
 		String s = "text/plain, text/html, text/x-dvi, text/x-c";
 		List<MimeType> mimeTypes = MimeTypeUtils.parseMimeTypes(s);
@@ -295,6 +301,13 @@ public class MimeTypeTests {
 		mimeTypes = MimeTypeUtils.parseMimeTypes(null);
 		assertThat(mimeTypes).as("No mime types returned").isNotNull();
 		assertThat(mimeTypes.size()).as("Invalid amount of mime types").isEqualTo(0);
+	}
+
+	@Test // gh-23241
+	public void parseMimeTypesWithTrailingComma() {
+		List<MimeType> mimeTypes = MimeTypeUtils.parseMimeTypes("text/plain, text/html,");
+		assertThat(mimeTypes).as("No mime types returned").isNotNull();
+		assertThat(mimeTypes.size()).as("Incorrect number of mime types").isEqualTo(2);
 	}
 
 	@Test // SPR-17459

@@ -10,7 +10,7 @@ dependencyManagement {
 // spring-core includes asm and repackages cglib, inlining both into the spring-core jar.
 // cglib itself depends on asm and is therefore further transformed by the JarJar task to
 // depend on org.springframework.asm; this avoids including two different copies of asm.
-def cglibVersion = "3.2.11"
+def cglibVersion = "3.3.0"
 def objenesisVersion = "3.0.1"
 
 configurations {
@@ -76,8 +76,8 @@ dependencies {
 	compileOnly(project(":spring-core-coroutines"))
 	optional("net.sf.jopt-simple:jopt-simple:5.0.4")
 	optional("org.aspectj:aspectjweaver:${aspectjVersion}")
-	optional("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
-	optional("org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
+	optional("org.jetbrains.kotlin:kotlin-reflect")
+	optional("org.jetbrains.kotlin:kotlin-stdlib")
 	optional("io.projectreactor:reactor-core")
 	optional("io.reactivex:rxjava:${rxjavaVersion}")
 	optional("io.reactivex:rxjava-reactive-streams:${rxjavaAdapterVersion}")
@@ -86,8 +86,8 @@ dependencies {
 	testCompile("io.projectreactor:reactor-test")
 	testCompile("org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}")
 	testCompile("com.google.code.findbugs:jsr305:3.0.2")
-	testCompile("org.xmlunit:xmlunit-matchers:2.6.2")
 	testCompile("org.xmlunit:xmlunit-assertj:2.6.2")
+	testCompile("org.xmlunit:xmlunit-matchers:2.6.2")
 	testCompile("javax.xml.bind:jaxb-api:2.3.1")
 	testCompile("com.fasterxml.woodstox:woodstox-core:5.2.0") {
 		exclude group: "stax", module: "stax-api"

@@ -30,11 +30,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.junit.runners.model.Statement;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ClassPathResource;
@@ -50,6 +54,7 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -58,21 +63,69 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assume.assumeFalse;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.MediaType.MULTIPART_MIXED;
 
 /**
+ * Integration tests for {@link RestTemplate}.
+ *
+ * <h3>Logging configuration for {@code MockWebServer}</h3>
+ *
+ * <p>In order for our log4j2 configuration to be used in an IDE, you must
+ * set the following system property before running any tests &mdash; for
+ * example, in <em>Run Configurations</em> in Eclipse.
+ *
+ * <pre class="code">
+ * -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager
+ * </pre>
+ *
  * @author Arjen Poutsma
  * @author Brian Clozel
+ * @author Sam Brannen
  */
 @RunWith(Parameterized.class)
 public class RestTemplateIntegrationTests extends AbstractMockWebServerTestCase {
 
 	private RestTemplate template;
 
+	/**
+	 * Custom JUnit 4 rule that executes the supplied {@code Statement} in a
+	 * try-catch block.
+	 *
+	 * <p>If the statement throws an {@link HttpServerErrorException}, this rule will
+	 * throw an {@link AssertionError} that wraps the {@code HttpServerErrorException}
+	 * using the {@link HttpServerErrorException#getResponseBodyAsString() response body}
+	 * as the failure message.
+	 *
+	 * <p>This mechanism provides an actually meaningful failure message if the
+	 * test fails due to an {@code AssertionError} on the server.
+	 */
+	@Rule
+	public TestRule serverErrorToAssertionErrorConverter = (Statement next, Description description) -> {
+		return new Statement() {
+
+			@Override
+			public void evaluate() throws Throwable {
+				try {
+					next.evaluate();
+				}
+				catch (HttpServerErrorException ex) {
+					String responseBody = ex.getResponseBodyAsString();
+					String prefix = AssertionError.class.getName() + ": ";
+					if (responseBody.startsWith(prefix)) {
+						responseBody = responseBody.substring(prefix.length());
+					}
+					throw new AssertionError(responseBody, ex);
+				}
+			}
+		};
+	};
+
+
 	@Parameter
 	public ClientHttpRequestFactory clientHttpRequestFactory;
 
 	@SuppressWarnings("deprecation")
-	@Parameters
+	@Parameters(name = "{0}")
 	public static Iterable<? extends ClientHttpRequestFactory> data() {
 		return Arrays.asList(
 				new SimpleClientHttpRequestFactory(),
@@ -217,19 +270,47 @@ public class RestTemplateIntegrationTests extends AbstractMockWebServerTestCase 
 	}
 
 	@Test
-	public void multipart() throws UnsupportedEncodingException {
+	public void multipartFormData() {
+		template.postForLocation(baseUrl + "/multipartFormData", createMultipartParts());
+	}
+
+	@Test
+	public void multipartMixed() throws Exception {
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setContentType(MULTIPART_MIXED);
+		template.postForLocation(baseUrl + "/multipartMixed", new HttpEntity<>(createMultipartParts(), requestHeaders));
+	}
+
+	@Test
+	public void multipartRelated() {
+		addSupportedMediaTypeToFormHttpMessageConverter(MULTIPART_RELATED);
+
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.setContentType(MULTIPART_RELATED);
+		template.postForLocation(baseUrl + "/multipartRelated", new HttpEntity<>(createMultipartParts(), requestHeaders));
+	}
+
+	private MultiValueMap<String, Object> createMultipartParts() {
 		MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 		parts.add("name 1", "value 1");
 		parts.add("name 2", "value 2+1");
 		parts.add("name 2", "value 2+2");
 		Resource logo = new ClassPathResource("/org/springframework/http/converter/logo.jpg");
 		parts.add("logo", logo);
+		return parts;
+	}
 
-		template.postForLocation(baseUrl + "/multipart", parts);
+	private void addSupportedMediaTypeToFormHttpMessageConverter(MediaType mediaType) {
+		this.template.getMessageConverters().stream()
+				.filter(FormHttpMessageConverter.class::isInstance)
+				.map(FormHttpMessageConverter.class::cast)
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("Failed to find FormHttpMessageConverter"))
+				.addSupportedMediaTypes(mediaType);
 	}
 
 	@Test
-	public void form() throws UnsupportedEncodingException {
+	public void form() {
 		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 		form.add("name 1", "value 1");
 		form.add("name 2", "value 2+1");

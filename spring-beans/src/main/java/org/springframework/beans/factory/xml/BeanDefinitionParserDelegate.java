@@ -1398,13 +1398,13 @@ public class BeanDefinitionParserDelegate {
 		if (namespaceUri == null) {
 			return null;
 		}
-		// 根据 namespaceUri 获取相应的 Handler
+		// 根据 namespaceUri 获取相应的 Handler，handle 里面会初始化各种 parse，用于解析配置，将其注册成 beanDefinition
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
 			return null;
 		}
-		// 调用自定义的 Handler 处理
+		// 调用自定义的 Handler 处理，基本像 xml 的<context:annotation-config /> <rabbit:annotation-driven/> 这种非常规的配置都会有对应的 parse
 		return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));
 	}
 

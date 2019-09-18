@@ -53,6 +53,14 @@ final class PostProcessorRegistrationDelegate {
 
 	/**
 	 * BeanDefinitionRegistryPostProcessor 和 BeanFactoryPostProcessor 有什么不同
+	 *
+	 * BeanDefinitionRegistryPostProcessor这个目的主要对已有的 BeanDefinition 进行解析，从而得到更多的 BeanDefinition
+	 * 比如说解析 @Configurable 这个 bean 下面地 @ComponentScan 注解或者各种 @enable 注解，就可以注册新的 BeanDefinition
+	 *
+	 * BeanFactoryPostProcessor 这个目的主要是对 BeanDefinition 的处理，比如说占位符替换这种功能
+	 *
+	 * 职责很分明
+	 *
 	 * @param beanFactory
 	 * @param beanFactoryPostProcessors
 	 */

@@ -38,6 +38,13 @@ import org.springframework.lang.Nullable;
  */
 class AspectJAutoProxyBeanDefinitionParser implements BeanDefinitionParser {
 
+	/**
+	 * 定义了很多标签，或者各种注解，其目的就是执行各种 BeanDefinitionParser 的 parse，获取BeanDefinition
+	 * @param element the element that is to be parsed into one or more {@link BeanDefinition BeanDefinitions}
+	 * @param parserContext the object encapsulating the current state of the parsing process;
+	 * provides access to a {@link org.springframework.beans.factory.support.BeanDefinitionRegistry}
+	 * @return
+	 */
 	@Override
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {

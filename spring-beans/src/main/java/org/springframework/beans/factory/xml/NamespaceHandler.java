@@ -45,6 +45,7 @@ import org.springframework.lang.Nullable;
  * @since 2.0
  * @see DefaultBeanDefinitionDocumentReader
  * @see NamespaceHandlerResolver
+ * 命名空间处理器，每个处理器里面都有一个或多个 BeanDefinitionParser 用于解析自定义标签 比如说 aspectj-autoproxy、component-scan
  */
 public interface NamespaceHandler {
 

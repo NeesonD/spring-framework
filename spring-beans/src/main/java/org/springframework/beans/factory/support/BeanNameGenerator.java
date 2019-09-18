@@ -20,7 +20,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 
 /**
  * Strategy interface for generating bean names for bean definitions.
- *
+ * 为 beanDefinition 生成 对应的 beanName
  * @author Juergen Hoeller
  * @since 2.0.3
  */

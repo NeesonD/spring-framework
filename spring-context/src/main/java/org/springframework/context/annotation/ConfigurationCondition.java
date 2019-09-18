@@ -37,6 +37,7 @@ public interface ConfigurationCondition extends Condition {
 
 	/**
 	 * The various configuration phases where the condition could be evaluated.
+	 * ??????????
 	 */
 	enum ConfigurationPhase {
 

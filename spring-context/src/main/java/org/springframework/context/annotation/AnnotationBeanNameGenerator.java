@@ -51,7 +51,7 @@ import org.springframework.util.StringUtils;
  * letter lower-cased). For example:
  *
  * <pre class="code">com.xyz.FooServiceImpl -&gt; fooServiceImpl</pre>
- *
+ * ============文档============, 主要用来给 BeanDefinition 生成 BeanName
  * @author Juergen Hoeller
  * @author Mark Fisher
  * @since 2.5
@@ -73,6 +73,13 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 	private static final String COMPONENT_ANNOTATION_CLASSNAME = "org.springframework.stereotype.Component";
 
 
+	/**
+	 * 默认是返回短类名
+	 * @param definition the bean definition to generate a name for
+	 * @param registry the bean definition registry that the given definition
+	 * is supposed to be registered with
+	 * @return
+	 */
 	@Override
 	public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
 		if (definition instanceof AnnotatedBeanDefinition) {

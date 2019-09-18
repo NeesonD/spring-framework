@@ -511,6 +511,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		return this.applicationListeners;
 	}
 
+	// 走到这一步，不同的 applicationContext 可能已经加载了部分 BeanDefinition
+
+	/**
+	 * Aware 接口有 AwareProcess 接口与之对应，这样就可以保证对应 bean 在初始化的时候执行 Aware 的 set 方法
+	 * @throws BeansException
+	 * @throws IllegalStateException
+	 */
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {

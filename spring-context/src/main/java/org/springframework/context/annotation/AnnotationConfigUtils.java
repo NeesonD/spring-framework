@@ -56,6 +56,7 @@ import org.springframework.util.ClassUtils;
  * @see CommonAnnotationBeanPostProcessor
  * @see org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor
  * @see org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor
+ * 待分析
  */
 public abstract class AnnotationConfigUtils {
 

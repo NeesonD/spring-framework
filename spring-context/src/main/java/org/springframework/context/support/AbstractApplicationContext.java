@@ -526,6 +526,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 			// Tell the subclass to refresh the internal bean factory.
 			// 如果是 xml 的话，这里会加载 xml 中的各种标签，然后注册成各种 BeanDefinition
+			// 如果是 Annotation 的话，这里做的工作很少，对应的工作会放到 invokeBeanFactoryPostProcessors 这里来做
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
@@ -533,12 +534,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 			try {
 				// Allows post-processing of the bean factory in context subclasses.
+				// 注册 Register ServletContextAwareProcessor
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.
+				// 核心，这里会解析常用的注解，个人感觉 annotation 与 xml 的区别就在与 obtainFreshBeanFactory 和 invokeBeanFactoryPostProcessors
+				// annotation 是在 invokeBeanFactoryPostProcessors 定义大量 BeanDefinitions
+				// xml 是在 obtainFreshBeanFactory 定义大量 BeanDefinitions
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
+				// 这个地方只注册 BeanPostProcessors
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
@@ -653,6 +659,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void prepareBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 		// Tell the internal bean factory to use the context's class loader etc.
+		// 这里可以设置成自定义的 ClassLoader
 		beanFactory.setBeanClassLoader(getClassLoader());
 		beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
@@ -725,6 +732,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Instantiate and register all BeanPostProcessor beans,
 	 * respecting explicit order if given.
 	 * <p>Must be called before any instantiation of application beans.
+	 * 一定要发生在 application bean 实例化之前，这里用到了委托者模式
 	 */
 	protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
 		PostProcessorRegistrationDelegate.registerBeanPostProcessors(beanFactory, this);

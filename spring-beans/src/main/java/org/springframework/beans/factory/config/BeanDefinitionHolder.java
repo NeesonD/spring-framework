@@ -36,6 +36,7 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.beans.factory.BeanNameAware
  * @see org.springframework.beans.factory.support.RootBeanDefinition
  * @see org.springframework.beans.factory.support.ChildBeanDefinition
+ * Holder 的用法可以参见这个，这一般是个持有类，相当于一个工具类一样
  */
 public class BeanDefinitionHolder implements BeanMetadataElement {
 

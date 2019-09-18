@@ -66,11 +66,12 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	/**
 	 * Parses the supplied {@link Element} by delegating to the {@link BeanDefinitionParser} that is
 	 * registered for that {@link Element}.
+	 * 委托者模式
 	 */
 	@Override
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
-		// 这里找具体的 BeanDefinitionParser
+		// 这里找具体的 BeanDefinitionParser，解析器比较多，可以分析一下常见的
 		BeanDefinitionParser parser = findParserForElement(element, parserContext);
 		// 一般解析是为了得到特殊的 BeanDefinition
 		return (parser != null ? parser.parse(element, parserContext) : null);

@@ -1390,6 +1390,7 @@ public class BeanDefinitionParserDelegate {
 	 * @param ele the element to parse
 	 * @param containingBd the containing bean definition (if any)
 	 * @return the resulting bean definition
+	 * 先初始化各种 NamespaceHandler 与 BeanDefinitionParser ,这两个是一对多的委托关系
 	 */
 	@Nullable
 	public BeanDefinition parseCustomElement(Element ele, @Nullable BeanDefinition containingBd) {

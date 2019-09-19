@@ -35,6 +35,7 @@ import org.springframework.lang.Nullable;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @since 2.0
+ * .G. 主要目的是注册 AUTO_PROXY_CREATOR_BEAN_NAME，不过该 beanName 对应的 BeanDefinition 有多种实现
  */
 class AspectJAutoProxyBeanDefinitionParser implements BeanDefinitionParser {
 
@@ -48,7 +49,10 @@ class AspectJAutoProxyBeanDefinitionParser implements BeanDefinitionParser {
 	@Override
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		// 核心
 		AopNamespaceUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(parserContext, element);
+		// 这个是将 <aop:include name=""> 注入到 AUTO_PROXY_CREATOR_BEAN_NAME 这个 BeanDefinition 的 PropertyValues()
+		// 那 bean 定义中的 PropertyValues 有什么用 .G.TODO
 		extendBeanDefinition(element, parserContext);
 		return null;
 	}

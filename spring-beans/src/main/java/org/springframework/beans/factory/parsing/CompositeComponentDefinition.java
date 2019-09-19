@@ -38,6 +38,9 @@ public class CompositeComponentDefinition extends AbstractComponentDefinition {
 	@Nullable
 	private final Object source;
 
+	/**
+	 * ???????
+	 */
 	private final List<ComponentDefinition> nestedComponents = new ArrayList<>();
 
 

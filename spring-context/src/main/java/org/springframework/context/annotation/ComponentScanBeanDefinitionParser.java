@@ -86,6 +86,7 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 				ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
 
 		// Actually scan for bean definitions and register them.
+		// 这里可以先对 scanner 设置自定义 beanDefinitions beanName 的生成策略
 		ClassPathBeanDefinitionScanner scanner = configureScanner(parserContext, element);
 		Set<BeanDefinitionHolder> beanDefinitions = scanner.doScan(basePackages);
 		registerComponents(parserContext.getReaderContext(), beanDefinitions, element);
@@ -109,6 +110,7 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 		}
 
 		try {
+			// 这里可以设置自定义的BeanNameGenerator
 			parseBeanNameGenerator(element, scanner);
 		}
 		catch (Exception ex) {

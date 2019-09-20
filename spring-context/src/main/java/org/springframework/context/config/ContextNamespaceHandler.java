@@ -27,19 +27,22 @@ import org.springframework.context.annotation.ComponentScanBeanDefinitionParser;
  * @author Mark Fisher
  * @author Juergen Hoeller
  * @since 2.5
+ * .G.TODO
  */
 public class ContextNamespaceHandler extends NamespaceHandlerSupport {
 
 	@Override
 	public void init() {
 		registerBeanDefinitionParser("property-placeholder", new PropertyPlaceholderBeanDefinitionParser());
-		registerBeanDefinitionParser("property-override", new PropertyOverrideBeanDefinitionParser());
 		registerBeanDefinitionParser("annotation-config", new AnnotationConfigBeanDefinitionParser());
 		registerBeanDefinitionParser("component-scan", new ComponentScanBeanDefinitionParser());
-		registerBeanDefinitionParser("load-time-weaver", new LoadTimeWeaverBeanDefinitionParser());
-		registerBeanDefinitionParser("spring-configured", new SpringConfiguredBeanDefinitionParser());
 		registerBeanDefinitionParser("mbean-export", new MBeanExportBeanDefinitionParser());
 		registerBeanDefinitionParser("mbean-server", new MBeanServerBeanDefinitionParser());
+
+
+		registerBeanDefinitionParser("property-override", new PropertyOverrideBeanDefinitionParser());
+		registerBeanDefinitionParser("load-time-weaver", new LoadTimeWeaverBeanDefinitionParser());
+		registerBeanDefinitionParser("spring-configured", new SpringConfiguredBeanDefinitionParser());
 	}
 
 }

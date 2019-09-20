@@ -57,6 +57,7 @@ public class CacheNamespaceHandler extends NamespaceHandlerSupport {
 
 	@Override
 	public void init() {
+		// .G.TODO
 		registerBeanDefinitionParser("annotation-driven", new AnnotationDrivenCacheBeanDefinitionParser());
 		registerBeanDefinitionParser("advice", new CacheAdviceParser());
 	}

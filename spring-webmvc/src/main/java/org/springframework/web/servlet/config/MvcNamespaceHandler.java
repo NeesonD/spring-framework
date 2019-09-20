@@ -26,6 +26,7 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  * @author Jeremy Grelle
  * @author Sebastien Deleuze
  * @since 3.0
+ * .G.TODO
  */
 public class MvcNamespaceHandler extends NamespaceHandlerSupport {
 

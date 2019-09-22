@@ -51,6 +51,7 @@ import org.springframework.util.ClassUtils;
  * @see Ejb3TransactionAnnotationParser
  * @see org.springframework.transaction.interceptor.TransactionInterceptor#setTransactionAttributeSource
  * @see org.springframework.transaction.interceptor.TransactionProxyFactoryBean#setTransactionAttributeSource
+ * 主要适配各种 @Transactional，或者自定义的事务注解，定义解析器，从而获取 @Transactional 中的各种属性
  */
 @SuppressWarnings("serial")
 public class AnnotationTransactionAttributeSource extends AbstractFallbackTransactionAttributeSource
@@ -88,6 +89,8 @@ public class AnnotationTransactionAttributeSource extends AbstractFallbackTransa
 	 * the {@code Transactional} annotation only (typically for use
 	 * with proxy-based AOP), or protected/private methods as well
 	 * (typically used with AspectJ class weaving)
+	 *                          代理模式通常和    publicMethodsOnly = true 搭配使用，只能在 public
+	 *                          AspectJ 通常和 publicMethodsOnly = false ,可以用于 私有方法
 	 */
 	public AnnotationTransactionAttributeSource(boolean publicMethodsOnly) {
 		this.publicMethodsOnly = publicMethodsOnly;

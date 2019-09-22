@@ -30,6 +30,7 @@ import org.springframework.aop.MethodBeforeAdvice;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * .G.
  */
 @SuppressWarnings("serial")
 class MethodBeforeAdviceAdapter implements AdvisorAdapter, Serializable {
@@ -39,6 +40,12 @@ class MethodBeforeAdviceAdapter implements AdvisorAdapter, Serializable {
 		return (advice instanceof MethodBeforeAdvice);
 	}
 
+	/**
+	 * 将 advisor 包装成 MethodInterceptor
+	 * @param advisor the Advisor. The supportsAdvice() method must have
+	 * returned true on this object
+	 * @return
+	 */
 	@Override
 	public MethodInterceptor getInterceptor(Advisor advisor) {
 		MethodBeforeAdvice advice = (MethodBeforeAdvice) advisor.getAdvice();

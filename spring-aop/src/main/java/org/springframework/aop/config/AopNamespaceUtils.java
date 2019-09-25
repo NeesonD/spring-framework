@@ -78,7 +78,7 @@ public abstract class AopNamespaceUtils {
 				parserContext.getRegistry(), parserContext.extractSource(sourceElement));
 		// 处理 proxy-target-class 和 expose-proxy
 		useClassProxyingIfNecessary(parserContext.getRegistry(), sourceElement);
-		// ??????
+		// 确保 AUTO_PROXY_CREATOR_BEAN_NAME 注入
 		registerComponentIfNecessary(beanDefinition, parserContext);
 	}
 

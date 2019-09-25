@@ -147,10 +147,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				}
 			}
 		}
-
+		// 前置处理，这种思想要掌握，可以分离业务与非业务功能
 		preProcessXml(root);
 		// 核心
 		parseBeanDefinitions(root, this.delegate);
+		// 后置处理
 		postProcessXml(root);
 
 		this.delegate = parent;

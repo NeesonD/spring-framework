@@ -129,6 +129,7 @@ public final class SpringFactoriesLoader {
 		}
 
 		try {
+			//获取 META-INF/spring.factories，并将其加载成 Properties
 			Enumeration<URL> urls = (classLoader != null ?
 					classLoader.getResources(FACTORIES_RESOURCE_LOCATION) :
 					ClassLoader.getSystemResources(FACTORIES_RESOURCE_LOCATION));

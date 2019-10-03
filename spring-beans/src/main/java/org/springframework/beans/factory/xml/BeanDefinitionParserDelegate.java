@@ -1400,6 +1400,8 @@ public class BeanDefinitionParserDelegate {
 			return null;
 		}
 		// 根据 namespaceUri 获取相应的 Handler，handle 里面会初始化各种 parse，用于解析配置，将其注册成 beanDefinition
+		// xmlns:tx="http://www.springframework.org/schema/tx"，通过 NamespaceHandler 将功能分组，组内有各自的解析器
+		// 委托 + 策略模式
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);

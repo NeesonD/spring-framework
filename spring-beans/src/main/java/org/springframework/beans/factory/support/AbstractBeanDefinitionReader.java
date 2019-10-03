@@ -221,8 +221,11 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		if (resourceLoader instanceof ResourcePatternResolver) {
 			// Resource pattern matching available.
 			try {
+				// 将文件地址加载成Resource
+				// 第一步：获取资源(xml/class/等等，可以使一切文件也可以是远程资源)，这也使得配置可以与代码分离
 				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
 				// 获取到 resources 之后，这里要解析 resources，得到 BeanDefinition，并注册到 beanFactory
+				// 第二步：加载 BeanDefinitions
 				int count = loadBeanDefinitions(resources);
 				if (actualResources != null) {
 					Collections.addAll(actualResources, resources);

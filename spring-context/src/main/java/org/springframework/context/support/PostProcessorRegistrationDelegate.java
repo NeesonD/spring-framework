@@ -146,6 +146,7 @@ final class PostProcessorRegistrationDelegate {
 			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
 			// 这里在执行另一个回调
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
+			// 使用 springboot 的时候，这里会调用 ConfigFileApplicationListener postProcessBeanFactory
 			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
 		}
 

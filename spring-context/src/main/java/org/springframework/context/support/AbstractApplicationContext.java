@@ -913,6 +913,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		getLifecycleProcessor().onRefresh();
 
 		// Publish the final event.
+		// 这个事件会初始化 FrameworkServlet 中的 onRefresh 方法，其实现在 DispatcherServlet
 		publishEvent(new ContextRefreshedEvent(this));
 
 		// Participate in LiveBeansView MBean, if active.

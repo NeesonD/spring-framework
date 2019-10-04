@@ -51,6 +51,7 @@ public interface ViewResolver {
 	 * (optional, to allow for ViewResolver chaining)
 	 * @throws Exception if the view cannot be resolved
 	 * (typically in case of problems creating an actual View object)
+	 * 根据视图名和国际化，获得最终的 View 对象
 	 */
 	@Nullable
 	View resolveViewName(String viewName, Locale locale) throws Exception;

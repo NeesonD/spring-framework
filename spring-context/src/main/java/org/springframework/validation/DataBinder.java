@@ -126,9 +126,15 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
 	private final String objectName;
 
+	/**
+	 * 绑定结果
+	 */
 	@Nullable
 	private AbstractPropertyBindingResult bindingResult;
 
+	/**
+	 * 类型转换器
+	 */
 	@Nullable
 	private SimpleTypeConverter typeConverter;
 
@@ -155,8 +161,14 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	@Nullable
 	private MessageCodesResolver messageCodesResolver;
 
+	/**
+	 * 可以和 Binder 中的 bindHandle 比较
+	 */
 	private BindingErrorProcessor bindingErrorProcessor = new DefaultBindingErrorProcessor();
 
+	/**
+	 * 验证器
+	 */
 	private final List<Validator> validators = new ArrayList<>();
 
 

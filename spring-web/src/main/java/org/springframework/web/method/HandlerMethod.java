@@ -68,24 +68,32 @@ public class HandlerMethod {
 
 	@Nullable
 	private final BeanFactory beanFactory;
-
+	// bean 类型
 	private final Class<?> beanType;
 
 	private final Method method;
 
 	private final Method bridgedMethod;
-
+	// 方法参数
 	private final MethodParameter[] parameters;
-
+	// 响应状态码
 	@Nullable
 	private HttpStatus responseStatus;
 
 	@Nullable
 	private String responseStatusReason;
 
+	/**
+	 * 解析自哪个 HandlerMethod 对象
+	 *
+	 * 仅构造方法中传入 HandlerMethod 类型的参数适用，例如 {@link #HandlerMethod(HandlerMethod)}
+	 */
 	@Nullable
 	private HandlerMethod resolvedFromHandlerMethod;
 
+	/**
+	 * 父接口的方法的参数注解数组
+	 */
 	@Nullable
 	private volatile List<Annotation[][]> interfaceParameterAnnotations;
 

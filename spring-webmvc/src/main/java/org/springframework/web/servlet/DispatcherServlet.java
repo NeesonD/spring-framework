@@ -1241,7 +1241,8 @@ public class DispatcherServlet extends FrameworkServlet {
 	protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
 		if (this.handlerMappings != null) {
 			for (HandlerMapping mapping : this.handlerMappings) {
-				// 这里通过 url 可以找到对应的处理器，因为处理器记录了 url 与类方法的映射
+				// 每一种 HandlerMapping 中都有一个注册器，里面记录了  url 与类方法的映射
+				// RequestMappingHandlerMapping、WebMvcEndpointHandlerMapping
 				HandlerExecutionChain handler = mapping.getHandler(request);
 				if (handler != null) {
 					return handler;

@@ -405,7 +405,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	@Override
 	@Nullable
 	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
-		// 获得处理器。该方法是抽象方法，由子类实现
+		// 获得处理器。该方法是抽象方法，由子类实现 HandlerMethod
 		Object handler = getHandlerInternal(request);
 		if (handler == null) {
 			handler = getDefaultHandler();

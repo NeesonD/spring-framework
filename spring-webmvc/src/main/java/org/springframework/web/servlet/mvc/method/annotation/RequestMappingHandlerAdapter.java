@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
@@ -860,31 +861,18 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		try {
 			// webDataBinder 用于处理参数
 			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
-			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);
 			// ServletInvocableHandlerMethod 组件
-			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
-			if (this.argumentResolvers != null) {
-				invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
-			}
-			if (this.returnValueHandlers != null) {
-				invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);
-			}
-			invocableMethod.setDataBinderFactory(binderFactory);
-			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);
+			ServletInvocableHandlerMethod invocableMethod = getServletInvocableHandlerMethod(handlerMethod,
+					binderFactory);
 
-			ModelAndViewContainer mavContainer = new ModelAndViewContainer();
-			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
-			modelFactory.initModel(webRequest, mavContainer, invocableMethod);
-			mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
+			ModelAndViewContainer mavContainer = getModelAndViewContainer(request);
 
-			AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request, response);
-			asyncWebRequest.setTimeout(this.asyncRequestTimeout);
+			ModelFactory modelFactory = getModelFactory(handlerMethod, webRequest, binderFactory, invocableMethod,
+					mavContainer);
 
-			WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
-			asyncManager.setTaskExecutor(this.taskExecutor);
-			asyncManager.setAsyncWebRequest(asyncWebRequest);
-			asyncManager.registerCallableInterceptors(this.callableInterceptors);
-			asyncManager.registerDeferredResultInterceptors(this.deferredResultInterceptors);
+			AsyncWebRequest asyncWebRequest = getAsyncWebRequest(request, response);
+
+			WebAsyncManager asyncManager = getWebAsyncManager(request, asyncWebRequest);
 
 			if (asyncManager.hasConcurrentResult()) {
 				Object result = asyncManager.getConcurrentResult();
@@ -907,6 +895,56 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		finally {
 			webRequest.requestCompleted();
 		}
+	}
+
+	@NotNull
+	private WebAsyncManager getWebAsyncManager(HttpServletRequest request, AsyncWebRequest asyncWebRequest) {
+		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
+		asyncManager.setTaskExecutor(this.taskExecutor);
+		asyncManager.setAsyncWebRequest(asyncWebRequest);
+		asyncManager.registerCallableInterceptors(this.callableInterceptors);
+		asyncManager.registerDeferredResultInterceptors(this.deferredResultInterceptors);
+		return asyncManager;
+	}
+
+	@NotNull
+	private AsyncWebRequest getAsyncWebRequest(HttpServletRequest request, HttpServletResponse response) {
+		AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request, response);
+		asyncWebRequest.setTimeout(this.asyncRequestTimeout);
+		return asyncWebRequest;
+	}
+
+	private ModelFactory getModelFactory(HandlerMethod handlerMethod, ServletWebRequest webRequest,
+			WebDataBinderFactory binderFactory, ServletInvocableHandlerMethod invocableMethod,
+			ModelAndViewContainer mavContainer) throws Exception {
+		ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);
+		modelFactory.initModel(webRequest, mavContainer, invocableMethod);
+		return modelFactory;
+	}
+
+	@NotNull
+	private ModelAndViewContainer getModelAndViewContainer(HttpServletRequest request) {
+		ModelAndViewContainer mavContainer = new ModelAndViewContainer();
+		mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
+		mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
+		return mavContainer;
+	}
+
+	@NotNull
+	private ServletInvocableHandlerMethod getServletInvocableHandlerMethod(HandlerMethod handlerMethod,
+			WebDataBinderFactory binderFactory) {
+		ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
+		if (this.argumentResolvers != null) {
+			// HandlerMethodArgumentResolver 处理入参
+			invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
+		}
+		if (this.returnValueHandlers != null) {
+			// HandlerMethodArgumentResolver 处理出参
+			invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);
+		}
+		invocableMethod.setDataBinderFactory(binderFactory);
+		invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);
+		return invocableMethod;
 	}
 
 	/**

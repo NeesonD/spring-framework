@@ -517,9 +517,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Aware 接口有 AwareProcess 接口与之对应，这样就可以保证对应 bean 在初始化的时候执行 Aware 的 set 方法
 	 * @throws BeansException
 	 * @throws IllegalStateException
+	 * 这里是典型的抽象类 + 模板模式
 	 */
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
+		// 这种加锁的方法可以借鉴一下
 		synchronized (this.startupShutdownMonitor) {
 			// Prepare this context for refreshing.
 			prepareRefresh();
@@ -541,22 +543,30 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// 核心，这里会解析常用的注解，个人感觉 annotation 与 xml 的区别就在与 obtainFreshBeanFactory 和 invokeBeanFactoryPostProcessors
 				// annotation 是在 invokeBeanFactoryPostProcessors 定义大量 BeanDefinitions
 				// xml 是在 obtainFreshBeanFactory 定义大量 BeanDefinitions
+				// 有两种 BeanFactoryPostProcessors，一种是处理 BeanDefinition，一种是生成新的 BeanDefinition
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
 				// 这个地方注册 BeanPostProcessors 并 实例化了 BeanPostProcessors
+				// 看到 BeanPostProcessor，就应该意识到某类型的 bean 在初始化的时候会搞事（这是一个批量处理）
+				// 有多种类型的 BeanPostProcessors，在 bean 实例化的时候生效，在 bean 初始化的时候生效...
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
+				// 注册 MessageSource bean
 				initMessageSource();
 
 				// Initialize event multicaster for this context.
+				// 注册 ApplicationEventMulticaster bean
 				initApplicationEventMulticaster();
 
 				// Initialize other special beans in specific context subclasses.
+				// UiApplicationContextUtils.initThemeSource
 				onRefresh();
 
 				// Check for listener beans and register them.
+				// 将 listener 注册到 ApplicationEventMulticaster 中，那发布事件的时候就可以通知到所有的 listener
+				// 推模型
 				registerListeners();
 
 				// Instantiate all remaining (non-lazy-init) singletons.

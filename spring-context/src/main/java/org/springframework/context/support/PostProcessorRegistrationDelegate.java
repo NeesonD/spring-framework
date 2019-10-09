@@ -75,6 +75,7 @@ final class PostProcessorRegistrationDelegate {
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
+			// SharedMetadataReaderFactoryContextInitializer/ConfigurationWarningsApplicationContextInitializer 内部类
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				// 这里将 BeanFactoryPostProcessor 分成了两类
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
@@ -84,6 +85,7 @@ final class PostProcessorRegistrationDelegate {
 					registryProcessors.add(registryProcessor);
 				}
 				else {
+					// ConfigFileApplicationListener 的内部类
 					regularPostProcessors.add(postProcessor);
 				}
 			}
@@ -181,6 +183,7 @@ final class PostProcessorRegistrationDelegate {
 		}
 
 		// First, invoke the BeanFactoryPostProcessors that implement PriorityOrdered.
+		// PropertySourcesPlaceholderConfigurer
 		sortPostProcessors(priorityOrderedPostProcessors, beanFactory);
 		invokeBeanFactoryPostProcessors(priorityOrderedPostProcessors, beanFactory);
 
@@ -198,6 +201,7 @@ final class PostProcessorRegistrationDelegate {
 			nonOrderedPostProcessors.add(beanFactory.getBean(postProcessorName, BeanFactoryPostProcessor.class));
 		}
 		// 核心、执行回调方法
+		// EventListenerMethodProcessor/PreserveErrorControllerTargetClassPostProcessor
 		invokeBeanFactoryPostProcessors(nonOrderedPostProcessors, beanFactory);
 
 		// Clear cached merged bean definitions since the post-processors might have

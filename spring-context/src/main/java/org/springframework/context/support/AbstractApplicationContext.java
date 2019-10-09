@@ -671,6 +671,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Tell the internal bean factory to use the context's class loader etc.
 		// 这里可以设置成自定义的 ClassLoader
 		beanFactory.setBeanClassLoader(getClassLoader());
+		// 添加 spel 解析器
 		beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
@@ -917,16 +918,20 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		clearResourceCaches();
 
 		// Initialize lifecycle processor for this context.
+		// 初始化 LifecycleProcessor
 		initLifecycleProcessor();
 
 		// Propagate refresh to lifecycle processor first.
+		// 获取 Lifecycle 类型的 bean，执行 start 方法
 		getLifecycleProcessor().onRefresh();
 
 		// Publish the final event.
-		// 这个事件会初始化 FrameworkServlet 中的 onRefresh 方法，其实现在 DispatcherServlet
+		// 这个事件可以初始化 FrameworkServlet 中的 onRefresh 方法
+		// context 也有自己的一套生命周期
 		publishEvent(new ContextRefreshedEvent(this));
 
 		// Participate in LiveBeansView MBean, if active.
+		// 注册一个 Mbean
 		LiveBeansView.registerApplicationContext(this);
 	}
 

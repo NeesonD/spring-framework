@@ -153,7 +153,7 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
 				throw new BeanInitializationException("Could not load properties", ex);
 			}
 		}
-
+		// propertySources 可以拿到所有的 key-value，在通过 processProperties 就可以替换 BeanDefinition 中的 ${...}
 		processProperties(beanFactory, new PropertySourcesPropertyResolver(this.propertySources));
 		this.appliedPropertySources = this.propertySources;
 	}

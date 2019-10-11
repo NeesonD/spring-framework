@@ -246,6 +246,12 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		return wrapIfNecessary(bean, beanName, cacheKey);
 	}
 
+	/**
+	 * 这里先处理一波
+	 * @param beanClass the class of the bean to be instantiated
+	 * @param beanName the name of the bean
+	 * @return
+	 */
 	@Override
 	public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) {
 		Object cacheKey = getCacheKey(beanClass, beanName);
@@ -265,6 +271,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		// The TargetSource will handle target instances in a custom fashion.
 		// 这里可以自定义 CustomTargetSourceCreators，从而生成代理类，一般工程都没有自定义的 TargetSource
 		TargetSource targetSource = getCustomTargetSource(beanClass, beanName);
+		// 这个方法一般不走
 		if (targetSource != null) {
 			if (StringUtils.hasLength(beanName)) {
 				this.targetSourcedBeans.add(beanName);
@@ -361,7 +368,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			this.proxyTypes.put(cacheKey, proxy.getClass());
 			return proxy;
 		}
-
+		// 当前 bean 不需要代理
 		this.advisedBeans.put(cacheKey, Boolean.FALSE);
 		return bean;
 	}

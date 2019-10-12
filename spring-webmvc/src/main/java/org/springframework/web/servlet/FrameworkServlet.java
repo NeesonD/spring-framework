@@ -526,6 +526,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		long startTime = System.currentTimeMillis();
 
 		try {
+			// 这里设置父子容器
 			this.webApplicationContext = initWebApplicationContext();
 			initFrameworkServlet();
 		}
@@ -587,6 +588,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		}
 		if (wac == null) {
 			// No context instance is defined for this servlet -> create a local one
+			// 这里设置父子容器
 			wac = createWebApplicationContext(rootContext);
 		}
 

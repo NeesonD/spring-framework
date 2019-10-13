@@ -92,6 +92,8 @@ import org.springframework.util.ClassUtils;
  * @see ConfigurableBeanFactory#addPropertyEditorRegistrar
  * @see ConfigurableBeanFactory#registerCustomEditor
  * @see org.springframework.validation.DataBinder#registerCustomEditor
+ * 注册自定义属性编辑器
+ * 使用场景，配置文件中有加密属性，这可以通过自定义属性编辑器解密
  */
 public class CustomEditorConfigurer implements BeanFactoryPostProcessor, Ordered {
 

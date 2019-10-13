@@ -118,6 +118,7 @@ public abstract class PropertyResourceConfigurer extends PropertiesLoaderSupport
 	 * @param propertyValue the original value from the properties source
 	 * @return the converted value, to be used for processing
 	 * @see #convertPropertyValue(String)
+	 * 通过覆盖此方法，可以对 properties 中的属性进行解密等二次操作
 	 */
 	protected String convertProperty(String propertyName, String propertyValue) {
 		return convertPropertyValue(propertyValue);

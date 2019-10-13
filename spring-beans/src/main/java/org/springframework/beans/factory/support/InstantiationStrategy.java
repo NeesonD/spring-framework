@@ -32,6 +32,7 @@ import org.springframework.lang.Nullable;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @since 1.1
+ * 只负责实例化，不负责初始化，得到一个半成品的 bean
  */
 public interface InstantiationStrategy {
 

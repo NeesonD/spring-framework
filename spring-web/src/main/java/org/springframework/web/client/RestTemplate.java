@@ -672,7 +672,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 	@Nullable
 	public <T> T execute(String url, HttpMethod method, @Nullable RequestCallback requestCallback,
 			@Nullable ResponseExtractor<T> responseExtractor, Object... uriVariables) throws RestClientException {
-
+		// 这里可以自定义 uriTemplateHandler 对 url 进行改造
 		URI expanded = getUriTemplateHandler().expand(url, uriVariables);
 		return doExecute(expanded, method, requestCallback, responseExtractor);
 	}

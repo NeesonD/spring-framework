@@ -73,6 +73,7 @@ class InterceptingClientHttpRequest extends AbstractBufferingClientHttpRequest {
 	@Override
 	protected final ClientHttpResponse executeInternal(HttpHeaders headers, byte[] bufferedOutput) throws IOException {
 		InterceptingRequestExecution requestExecution = new InterceptingRequestExecution();
+		// 执行拦截器
 		return requestExecution.execute(this, bufferedOutput);
 	}
 
@@ -89,9 +90,11 @@ class InterceptingClientHttpRequest extends AbstractBufferingClientHttpRequest {
 		public ClientHttpResponse execute(HttpRequest request, byte[] body) throws IOException {
 			if (this.iterator.hasNext()) {
 				ClientHttpRequestInterceptor nextInterceptor = this.iterator.next();
+				// 把自己传进去了，便于后续的回调
 				return nextInterceptor.intercept(request, body, this);
 			}
 			else {
+				// 拦截器执行完之后，会执行这里
 				HttpMethod method = request.getMethod();
 				Assert.state(method != null, "No standard HTTP method");
 				ClientHttpRequest delegate = requestFactory.createRequest(request.getURI(), method);

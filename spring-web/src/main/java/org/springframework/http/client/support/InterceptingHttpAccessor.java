@@ -43,8 +43,10 @@ import org.springframework.util.CollectionUtils;
  */
 public abstract class InterceptingHttpAccessor extends HttpAccessor {
 
+	// 拦截器
 	private final List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
 
+	// 实现适配
 	@Nullable
 	private volatile ClientHttpRequestFactory interceptingRequestFactory;
 

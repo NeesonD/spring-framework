@@ -63,8 +63,11 @@ import org.springframework.util.ObjectUtils;
 public abstract class AbstractApplicationEventMulticaster
 		implements ApplicationEventMulticaster, BeanClassLoaderAware, BeanFactoryAware {
 
+	// 这个默认的会把所有的 Listener 收集起来，false 代表不用排序。那监听者的排序在哪呢？从getApplicationListeners可以看到
+	// 每个事件都有一个 自己的 ListenerRetriever
 	private final ListenerRetriever defaultRetriever = new ListenerRetriever(false);
 
+	// 这里其实就是缓存事件与监听器
 	final Map<ListenerCacheKey, ListenerRetriever> retrieverCache = new ConcurrentHashMap<>(64);
 
 	@Nullable
@@ -73,6 +76,7 @@ public abstract class AbstractApplicationEventMulticaster
 	@Nullable
 	private ConfigurableBeanFactory beanFactory;
 
+	// 添加 ApplicationListener 可能会有并发情况，这里先搞个锁对象
 	private Object retrievalMutex = this.defaultRetriever;
 
 
@@ -193,8 +197,10 @@ public abstract class AbstractApplicationEventMulticaster
 					return retriever.getApplicationListeners();
 				}
 				retriever = new ListenerRetriever(true);
+				// 这里会获取合适的 Listeners，并且给 Listeners 排序
 				Collection<ApplicationListener<?>> listeners =
 						retrieveApplicationListeners(eventType, sourceType, retriever);
+				// 这里将事件和监听器缓存了起来
 				this.retrieverCache.put(cacheKey, retriever);
 				return listeners;
 			}

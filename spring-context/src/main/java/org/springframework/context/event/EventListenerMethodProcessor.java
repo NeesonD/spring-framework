@@ -142,6 +142,11 @@ public class EventListenerMethodProcessor
 		}
 	}
 
+	/**
+	 * 解析 EventListener，将方法封装成 ApplicationListener，将加到 AbstractApplicationEventMulticaster 中
+	 * @param beanName
+	 * @param targetType
+	 */
 	private void processBean(final String beanName, final Class<?> targetType) {
 		if (!this.nonAnnotatedClasses.contains(targetType) &&
 				AnnotationUtils.isCandidateClass(targetType, EventListener.class) &&
@@ -176,6 +181,7 @@ public class EventListenerMethodProcessor
 					for (EventListenerFactory factory : factories) {
 						if (factory.supportsMethod(method)) {
 							Method methodToUse = AopUtils.selectInvocableMethod(method, context.getType(beanName));
+							// 这里重新将方法中的 @EventListener 和 @TransactionalEventListener 封装成了 ApplicationListener
 							ApplicationListener<?> applicationListener =
 									factory.createApplicationListener(beanName, targetType, methodToUse);
 							if (applicationListener instanceof ApplicationListenerMethodAdapter) {

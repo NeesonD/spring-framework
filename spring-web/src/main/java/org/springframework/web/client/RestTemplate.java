@@ -123,7 +123,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 		jsonbPresent = ClassUtils.isPresent("javax.json.bind.Jsonb", classLoader);
 	}
 
-
+	// 编解码
 	private final List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
 
 	private ResponseErrorHandler errorHandler = new DefaultResponseErrorHandler();

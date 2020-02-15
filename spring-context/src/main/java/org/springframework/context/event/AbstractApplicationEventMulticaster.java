@@ -179,6 +179,7 @@ public abstract class AbstractApplicationEventMulticaster
 
 		Object source = event.getSource();
 		Class<?> sourceType = (source != null ? source.getClass() : null);
+		// 一个事件类型，一个事件源类型
 		ListenerCacheKey cacheKey = new ListenerCacheKey(eventType, sourceType);
 
 		// Quick check for existing entry on ConcurrentHashMap...
@@ -278,7 +279,7 @@ public abstract class AbstractApplicationEventMulticaster
 				}
 			}
 		}
-
+		// 这里会对所有符合条件的 listener 排一下序
 		AnnotationAwareOrderComparator.sort(allListeners);
 		if (retriever != null && retriever.applicationListenerBeans.isEmpty()) {
 			retriever.applicationListeners.clear();

@@ -58,11 +58,20 @@ class ApplicationListenerMethodTransactionalAdapter extends ApplicationListenerM
 	}
 
 
+	/**
+	 * 这里实现了在事务的哪个位置执行监听器里面的逻辑
+	 * 通过 ThreadLocal 暂存这些 Listener，待到一定的时机去执行
+	 * @param event
+	 */
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (TransactionSynchronizationManager.isSynchronizationActive()
 				&& TransactionSynchronizationManager.isActualTransactionActive()) {
+			// 这里将事件，监听器，以及执行阶段封装起来
 			TransactionSynchronization transactionSynchronization = createTransactionSynchronization(event);
+			// 注册到事件管理平台，在事件推进的过程中，会执行一些钩子方法，从而执行这里 listener
+			// 是不是可以自定义一个 @CustomerEventListener
+			// 这里也有 ThreadLocal 的巧妙用法，比如说事件与事件直接的数据传递
 			TransactionSynchronizationManager.registerSynchronization(transactionSynchronization);
 		}
 		else if (this.annotation.fallbackExecution()) {

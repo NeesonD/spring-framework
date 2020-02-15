@@ -45,9 +45,14 @@ import org.springframework.util.ErrorHandler;
  * @author Juergen Hoeller
  * @author Stephane Nicoll
  * @see #setTaskExecutor
+ * 发射器的设计很重要，因为 Event 和 Listener 的职责是很单一的，而发射器则把两个关联起来。
+ * 这种关联逻辑会有不少扩展点
  */
 public class SimpleApplicationEventMulticaster extends AbstractApplicationEventMulticaster {
 
+	/**
+	 * 当注入此属性时，则可以使得 Listener 异步执行
+	 */
 	@Nullable
 	private Executor taskExecutor;
 
@@ -129,8 +134,10 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 
 	@Override
 	public void multicastEvent(final ApplicationEvent event, @Nullable ResolvableType eventType) {
+		// 这里的 ResolvableType 可以简单看作是一个 event 的唯一key，用来获取对应的 Listener
 		ResolvableType type = (eventType != null ? eventType : resolveDefaultEventType(event));
 		Executor executor = getTaskExecutor();
+		// 这里会获取所有对指定 event 的 listener，那 @EventListener 是如何处理的
 		for (ApplicationListener<?> listener : getApplicationListeners(event, type)) {
 			// 可以看到，消费者可以以异步的方式去执行
 			if (executor != null) {
@@ -154,6 +161,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	 */
 	protected void invokeListener(ApplicationListener<?> listener, ApplicationEvent event) {
 		ErrorHandler errorHandler = getErrorHandler();
+		// 当 listener 执行出错时，这里可以自定义 ErrorHandler 处理
 		if (errorHandler != null) {
 			try {
 				doInvokeListener(listener, event);
@@ -170,6 +178,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void doInvokeListener(ApplicationListener listener, ApplicationEvent event) {
 		try {
+			// 这里注意一下 ApplicationListenerMethodTransactionalAdapter 这个 listener
 			listener.onApplicationEvent(event);
 		}
 		catch (ClassCastException ex) {

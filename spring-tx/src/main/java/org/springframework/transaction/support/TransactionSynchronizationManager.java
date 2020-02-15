@@ -292,6 +292,7 @@ public abstract class TransactionSynchronizationManager {
 			throws IllegalStateException {
 
 		Assert.notNull(synchronization, "TransactionSynchronization must not be null");
+		// 这里用的是 LinkedHashSet，所以是有序的
 		Set<TransactionSynchronization> synchs = synchronizations.get();
 		if (synchs == null) {
 			throw new IllegalStateException("Transaction synchronization is not active");

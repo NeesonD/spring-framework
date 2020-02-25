@@ -248,7 +248,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	}
 
 	/**
-	 * 调玩 postProcessBeanDefinitionRegistry ，调 postProcessBeanFactory
+	 * 调完 postProcessBeanDefinitionRegistry ，调 postProcessBeanFactory
 	 * Prepare the Configuration classes for servicing bean requests at runtime
 	 * by replacing them with CGLIB-enhanced subclasses.
 	 */

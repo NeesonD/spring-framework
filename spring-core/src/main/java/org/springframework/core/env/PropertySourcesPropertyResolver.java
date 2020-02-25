@@ -28,6 +28,7 @@ import org.springframework.lang.Nullable;
  * @see PropertySource
  * @see PropertySources
  * @see AbstractEnvironment
+ * 这里是处理 PropertySource 中源数据的地方，比如说解析占位符
  */
 public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 

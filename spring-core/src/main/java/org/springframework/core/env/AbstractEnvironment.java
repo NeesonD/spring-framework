@@ -103,6 +103,9 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	/** 下面几个变量是重点，Environment 通过组合 Profiles、PropertySources、PropertyResolver 拥有他们的功能  **/
+
+
 	private final Set<String> activeProfiles = new LinkedHashSet<>();
 
 	private final Set<String> defaultProfiles = new LinkedHashSet<>(getReservedDefaultProfiles());

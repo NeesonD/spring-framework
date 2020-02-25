@@ -61,8 +61,17 @@ public abstract class PropertySource<T> {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	/**
+	 * 这里的 name 和下放的 source 可以看做是 map 的 key 和 value
+	 * 这里的 value 可以理解为是一个 map，其主要作用是保存各种 key-value 对
+	 * Map<String,Map<String,String>>
+	 */
 	protected final String name;
 
+	/**
+	 * 这里的 T 就是各个实现类存储 key-value 的地方
+	 * 这里的泛型设计可以学习一下
+	 */
 	protected final T source;
 
 

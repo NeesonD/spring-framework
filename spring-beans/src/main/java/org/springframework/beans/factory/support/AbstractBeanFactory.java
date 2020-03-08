@@ -327,6 +327,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 				// Create bean instance.
 				if (mbd.isSingleton()) {
+					// 这里可以看做是传递函数
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
 							// 核心

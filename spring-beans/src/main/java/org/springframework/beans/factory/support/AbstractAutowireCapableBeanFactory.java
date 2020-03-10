@@ -605,12 +605,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Initialize the bean instance.
+		// 这里的 bean 是原始对象
 		Object exposedObject = bean;
 		try {
 			// 对 bean 进行填充，将各个属性值注入，其中，可能存在依赖于其他 bean 的属性
 			// 则会递归初始依赖 bean
 			populateBean(beanName, mbd, instanceWrapper);
-			// 调用各种钩子方法
+			// 调用各种钩子方法，原始对象可能被替换成代理对象
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {

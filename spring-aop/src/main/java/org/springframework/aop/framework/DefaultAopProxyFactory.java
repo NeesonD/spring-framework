@@ -42,6 +42,7 @@ import org.springframework.aop.SpringProxy;
  * @see AdvisedSupport#setOptimize
  * @see AdvisedSupport#setProxyTargetClass
  * @see AdvisedSupport#setInterfaces
+ * 覆盖此办法，将 AopProxy 替换成 bytebuddy
  */
 @SuppressWarnings("serial")
 public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {

@@ -249,7 +249,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	}
 
 	/**
-	 * 这里先处理一波
+	 * 如果有自定义TargetSource，则在这里生成代理对象
 	 * @param beanClass the class of the bean to be instantiated
 	 * @param beanName the name of the bean
 	 * @return

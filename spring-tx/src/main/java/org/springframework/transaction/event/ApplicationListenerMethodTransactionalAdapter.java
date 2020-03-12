@@ -71,13 +71,14 @@ class ApplicationListenerMethodTransactionalAdapter extends ApplicationListenerM
 			TransactionSynchronization transactionSynchronization = createTransactionSynchronization(event);
 			// 注册到事件管理平台，在事件推进的过程中，会执行一些钩子方法，从而执行这里 listener
 			// 是不是可以自定义一个 @CustomerEventListener
-			// 这里也有 ThreadLocal 的巧妙用法，比如说事件与事件直接的数据传递
+			// 这里也有 ThreadLocal 的巧妙用法，比如说在事件之间传递与统计状态
 			TransactionSynchronizationManager.registerSynchronization(transactionSynchronization);
 		}
 		else if (this.annotation.fallbackExecution()) {
 			if (this.annotation.phase() == TransactionPhase.AFTER_ROLLBACK && logger.isWarnEnabled()) {
 				logger.warn("Processing " + event + " as a fallback execution on AFTER_ROLLBACK phase");
 			}
+			// 事务回滚也能够进行处理
 			processEvent(event);
 		}
 		else {

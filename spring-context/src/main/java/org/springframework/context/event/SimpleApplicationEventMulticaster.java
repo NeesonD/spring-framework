@@ -56,6 +56,9 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	@Nullable
 	private Executor taskExecutor;
 
+	/**
+	 * 异常处理器，这种设计在业务中也很常见
+	 */
 	@Nullable
 	private ErrorHandler errorHandler;
 
@@ -137,9 +140,11 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 		// 这里的 ResolvableType 可以简单看作是一个 event 的唯一key，用来获取对应的 Listener
 		ResolvableType type = (eventType != null ? eventType : resolveDefaultEventType(event));
 		Executor executor = getTaskExecutor();
-		// 这里会获取所有对指定 event 的 listener，那 @EventListener 是如何处理的
+		// 这里会获取 event 对应的 listener；@EventListener 是如何处理的
 		for (ApplicationListener<?> listener : getApplicationListeners(event, type)) {
-			// 可以看到，消费者可以以异步的方式去执行
+			// 可以看到，消费者可以以异步的方式去执行; 也就是说这里存在同步异步策略
+			// 并且是推模型
+			// 思考一下如何改成拉模型，或者推拉模型结合（对比一下这三种模型的优劣）
 			if (executor != null) {
 				executor.execute(() -> invokeListener(listener, event));
 			}
@@ -161,7 +166,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	 */
 	protected void invokeListener(ApplicationListener<?> listener, ApplicationEvent event) {
 		ErrorHandler errorHandler = getErrorHandler();
-		// 当 listener 执行出错时，这里可以自定义 ErrorHandler 处理
+		// 可以看到，如果想要统一处理异常，这可以通过 ErrorHandler 来实现
 		if (errorHandler != null) {
 			try {
 				doInvokeListener(listener, event);
@@ -178,7 +183,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void doInvokeListener(ApplicationListener listener, ApplicationEvent event) {
 		try {
-			// 这里注意一下 ApplicationListenerMethodTransactionalAdapter 这个 listener
+			// 这里就会去执行我们的业务逻辑，请注意一下 ApplicationListenerMethodTransactionalAdapter 这个 listener
 			listener.onApplicationEvent(event);
 		}
 		catch (ClassCastException ex) {

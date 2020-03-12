@@ -63,20 +63,29 @@ import org.springframework.util.ObjectUtils;
 public abstract class AbstractApplicationEventMulticaster
 		implements ApplicationEventMulticaster, BeanClassLoaderAware, BeanFactoryAware {
 
-	// 这个默认的会把所有的 Listener 收集起来，false 代表不用排序。那监听者的排序在哪呢？从getApplicationListeners可以看到
-	// 每个事件都有一个 自己的 ListenerRetriever
+	/**
+	 * 一个大篮子，所有的监听者都会加到这个里面，false 代表不用排序。那监听者的排序在哪呢？从 getApplicationListeners可以看到
+	 */
 	private final ListenerRetriever defaultRetriever = new ListenerRetriever(false);
 
-	// 这里其实就是缓存事件与监听器
+	/**
+	 * 很多小篮子，以 Event + EventSource 为 key，Listeners 为 value。起到缓存作用
+	 */
 	final Map<ListenerCacheKey, ListenerRetriever> retrieverCache = new ConcurrentHashMap<>(64);
 
 	@Nullable
 	private ClassLoader beanClassLoader;
 
+	/**
+	 * 通过组合 beanFactory，可以通过 beanType 或者 beanName 进行 Listener 的注册
+	 * 这里也是个通用的处理，对于某些特殊类型 bean 的收集，都可以通过组合 beanFactory 来轻松实现
+	 */
 	@Nullable
 	private ConfigurableBeanFactory beanFactory;
 
-	// 添加 ApplicationListener 可能会有并发情况，这里先搞个锁对象
+	/**
+	 * 添加 ApplicationListener 可能会有并发情况，这里先搞个锁对象
+	 */
 	private Object retrievalMutex = this.defaultRetriever;
 
 
@@ -105,7 +114,10 @@ public abstract class AbstractApplicationEventMulticaster
 		return this.beanFactory;
 	}
 
-
+	/**
+	 * 1. 这里设计了一个内部类 ListenerRetriever 来 hold applicationListeners （SpringApplicationRunListeners）
+	 * @param listener the listener to add
+	 */
 	@Override
 	public void addApplicationListener(ApplicationListener<?> listener) {
 		synchronized (this.retrievalMutex) {
@@ -115,6 +127,8 @@ public abstract class AbstractApplicationEventMulticaster
 			if (singletonTarget instanceof ApplicationListener) {
 				this.defaultRetriever.applicationListeners.remove(singletonTarget);
 			}
+			// 从这里可以看到，所有的鸡蛋都是放在一个篮子里面的。也就是说如果我想获取某个事件的监听者，
+			// 那我就要遍历所有的 applicationListeners，这样性能是很差的
 			this.defaultRetriever.applicationListeners.add(listener);
 			this.retrieverCache.clear();
 		}
@@ -194,9 +208,11 @@ public abstract class AbstractApplicationEventMulticaster
 			// Fully synchronized building and caching of a ListenerRetriever
 			synchronized (this.retrievalMutex) {
 				retriever = this.retrieverCache.get(cacheKey);
+				// 如果有新增 Listener，retrieverCache 会被清空，所以当 cache 里面能获取到东西的时候，就肯定是最新的
 				if (retriever != null) {
 					return retriever.getApplicationListeners();
 				}
+				// 小篮子里面的监听者是有序的
 				retriever = new ListenerRetriever(true);
 				// 这里会获取合适的 Listeners，并且给 Listeners 排序
 				Collection<ApplicationListener<?>> listeners =
@@ -225,6 +241,7 @@ public abstract class AbstractApplicationEventMulticaster
 		List<ApplicationListener<?>> allListeners = new ArrayList<>();
 		Set<ApplicationListener<?>> listeners;
 		Set<String> listenerBeans;
+		// 这里把数据 Copy 了一份，这样可以避免长时间加锁
 		synchronized (this.retrievalMutex) {
 			listeners = new LinkedHashSet<>(this.defaultRetriever.applicationListeners);
 			listenerBeans = new LinkedHashSet<>(this.defaultRetriever.applicationListenerBeans);

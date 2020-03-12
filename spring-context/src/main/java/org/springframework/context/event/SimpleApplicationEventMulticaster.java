@@ -135,6 +135,17 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 		multicastEvent(event, resolveDefaultEventType(event));
 	}
 
+	/**
+	 * 思考一个问题：如果事件的发送要从 spring 同步机制改成 mq，那该怎么办？
+	 * 为了应对这种事件发送的策略变更，我们可以重写这个方法，通过判断事件的类型，来选择发送方
+	 * 当我们切换发送方的时候，只用改事件的类型即可（比如说改事件实现的标志接口）
+	 *
+	 *    Algorithm = Logic + Control
+	 * 这里有一个很重要的思想，就是 control 是可以标准化的，他应该是和 logic 分离的，当我们改动 control 策略的时候
+	 * 是不应该影响 logic 的
+	 * @param event the event to multicast
+	 * @param eventType the type of event (can be {@code null})
+	 */
 	@Override
 	public void multicastEvent(final ApplicationEvent event, @Nullable ResolvableType eventType) {
 		// 这里的 ResolvableType 可以简单看作是一个 event 的唯一key，用来获取对应的 Listener

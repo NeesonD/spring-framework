@@ -64,6 +64,7 @@ import org.springframework.util.concurrent.ListenableFuture;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @since 4.2
+ * @EventListener 标记的方法会转成  ApplicationListenerMethodAdapter 这个类，并且加到发射器中
  */
 public class ApplicationListenerMethodAdapter implements GenericApplicationListener {
 

@@ -59,6 +59,7 @@ import org.springframework.util.CollectionUtils;
  * @since 4.2
  * @see EventListenerFactory
  * @see DefaultEventListenerFactory
+ * 通过 SmartInitializingSingleton 机制扫描所有 bean，并且找到 EventListener 的方法，封装到 ApplicationListener，并加入到发射器中
  */
 public class EventListenerMethodProcessor
 		implements SmartInitializingSingleton, ApplicationContextAware, BeanFactoryPostProcessor {
@@ -89,14 +90,17 @@ public class EventListenerMethodProcessor
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
-		// EventListener 和 TransactionalEventListener
+		// DefaultEventListenerFactory 和 TransactionalEventListenerFactory
 		Map<String, EventListenerFactory> beans = beanFactory.getBeansOfType(EventListenerFactory.class, false, false);
 		List<EventListenerFactory> factories = new ArrayList<>(beans.values());
+		// 这里的排序也很重要，先用 TransactionalEventListenerFactory 进行判断
 		AnnotationAwareOrderComparator.sort(factories);
 		this.eventListenerFactories = factories;
 	}
 
-
+	/**
+	 * bean 实例化之后触发
+	 */
 	@Override
 	public void afterSingletonsInstantiated() {
 		ConfigurableListableBeanFactory beanFactory = this.beanFactory;
@@ -104,6 +108,7 @@ public class EventListenerMethodProcessor
 		String[] beanNames = beanFactory.getBeanNamesForType(Object.class);
 		for (String beanName : beanNames) {
 			if (!ScopedProxyUtils.isScopedTarget(beanName)) {
+				// 获取 bean 的类型
 				Class<?> type = null;
 				try {
 					type = AutoProxyUtils.determineTargetClass(beanFactory, beanName);
@@ -143,7 +148,10 @@ public class EventListenerMethodProcessor
 	}
 
 	/**
-	 * 解析 EventListener，将方法封装成 ApplicationListener，将加到 AbstractApplicationEventMulticaster 中
+	 * 解析 EventListener，将方法封装成 ApplicationListener，并加到 AbstractApplicationEventMulticaster
+	 *
+	 * EventListener 处理有两种思路，一是通过 beanPostProcessor 在每个 bean 初始化的时候处理
+	 * 2 是等所有 bean 初始化完成之后，统一处理。这里很显然是第二种方案
 	 * @param beanName
 	 * @param targetType
 	 */
@@ -154,6 +162,7 @@ public class EventListenerMethodProcessor
 
 			Map<Method, EventListener> annotatedMethods = null;
 			try {
+				// 找到这个 bean 中有 EventListener 的方法
 				annotatedMethods = MethodIntrospector.selectMethods(targetType,
 						(MethodIntrospector.MetadataLookup<EventListener>) method ->
 								AnnotatedElementUtils.findMergedAnnotation(method, EventListener.class));
@@ -178,6 +187,7 @@ public class EventListenerMethodProcessor
 				List<EventListenerFactory> factories = this.eventListenerFactories;
 				Assert.state(factories != null, "EventListenerFactory List not initialized");
 				for (Method method : annotatedMethods.keySet()) {
+					// 因为上面有排序，所以这里先执行 TransactionalEventListenerFactory
 					for (EventListenerFactory factory : factories) {
 						if (factory.supportsMethod(method)) {
 							Method methodToUse = AopUtils.selectInvocableMethod(method, context.getType(beanName));

@@ -29,6 +29,7 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
  *
  * @author Stephane Nicoll
  * @since 4.2
+ * 这里的 order 很重要
  */
 public class TransactionalEventListenerFactory implements EventListenerFactory, Ordered {
 

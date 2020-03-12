@@ -208,11 +208,9 @@ public abstract class AbstractApplicationEventMulticaster
 			// Fully synchronized building and caching of a ListenerRetriever
 			synchronized (this.retrievalMutex) {
 				retriever = this.retrieverCache.get(cacheKey);
-				// 如果有新增 Listener，retrieverCache 会被清空，所以当 cache 里面能获取到东西的时候，就肯定是最新的
 				if (retriever != null) {
 					return retriever.getApplicationListeners();
 				}
-				// 小篮子里面的监听者是有序的
 				retriever = new ListenerRetriever(true);
 				// 这里会获取合适的 Listeners，并且给 Listeners 排序
 				Collection<ApplicationListener<?>> listeners =
@@ -241,7 +239,6 @@ public abstract class AbstractApplicationEventMulticaster
 		List<ApplicationListener<?>> allListeners = new ArrayList<>();
 		Set<ApplicationListener<?>> listeners;
 		Set<String> listenerBeans;
-		// 这里把数据 Copy 了一份，这样可以避免长时间加锁
 		synchronized (this.retrievalMutex) {
 			listeners = new LinkedHashSet<>(this.defaultRetriever.applicationListeners);
 			listenerBeans = new LinkedHashSet<>(this.defaultRetriever.applicationListenerBeans);

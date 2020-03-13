@@ -47,7 +47,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * -> TransactionSynchronizationUtils.trigger* -> TransactionSynchronizationManager.getSynchronizations
  * -> TransactionSynchronization.* -> 各种 TransactionSynchronization 实现类的执行
  *
- * 而 TransactionSynchronization 注册则通过事件的响应来完成
+ * 依据上面这种规范化的控制流程，我们想要在事务的提交前后执行就很容易的，只要注册 TransactionSynchronization 就行
  */
 class ApplicationListenerMethodTransactionalAdapter extends ApplicationListenerMethodAdapter {
 

@@ -39,6 +39,7 @@ import org.springframework.util.StringUtils;
  * @author Juergen Hoeller
  * @since 28.12.2003
  * @see java.net.URL
+ * file: 用于访问文件系统；http: 用于通过 HTTP 协议访问资源；ftp: 用于通过 FTP 协议访问资源等
  */
 public class UrlResource extends AbstractFileResolvingResource {
 

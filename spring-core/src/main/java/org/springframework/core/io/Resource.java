@@ -42,12 +42,23 @@ import org.springframework.lang.Nullable;
  * @see #getFile()
  * @see WritableResource
  * @see ContextResource
- * @see UrlResource ：对 java.net.URL类型资源的封装
+ * @see UrlResource ：对 java.net.URL类型资源的封装； 访问网络资源的实现类
  * @see FileUrlResource
- * @see FileSystemResource ：对 java.io.File 类型资源的封装
- * @see ClassPathResource ：class path 类型资源的实现
- * @see ByteArrayResource ：对字节数组提供的数据的封装
- * @see InputStreamResource ：将给定的 InputStream 作为一种资源的 Resource 的实现类
+ * @see FileSystemResource ：对 java.io.File 类型资源的封装；访问文件系统里资源的实现类
+ * @see ClassPathResource ：class path 类型资源的实现；访问类加载路径里资源的实现类
+ * @see ByteArrayResource ：对字节数组提供的数据的封装;访问字节数组资源的实现类
+ * @see InputStreamResource ：将给定的 InputStream 作为一种资源的 Resource 的实现类;访问输入流资源的实现类
+ * @see ServletContextResource : 访问相对于 ServletContext 路径里的资源的实现类
+ *
+ * Resource 访问策略：
+ * 1. ApplicationContext 实现类指定访问策略
+ * 2. 前缀指定访问策略
+ * 3. classpath*: 前缀提供了装载多个 XML 配置文件的能力，当使用 classpath*: 前缀来指定 XML 配置文件时，系统将搜索类加载路径，找出所有与文件名的文件，分别装载文件中的配置定义，最后合并成一个 ApplicationContext
+ * 4. classpath: 系统通过类加载路径搜索 bean.xml 文件，如果找到文件名匹配的文件，系统立即停止搜索，装载该文件，即使有多份文件名匹配的文件，系统只装载第一份文件。资源文件的搜索顺序则取决于类加载路径的顺序，排在前面的配置文件将优先被加载
+ *
+ * file: 前缀的用法：
+ * 当 FileSystemXmlApplicationContext 作为 ResourceLoader 使用时，它会发生变化，FileSystemApplicationContext 会简单地让所有绑定的 FileSystemResource 实例把绝对路径都当成相对路径处理，而不管是否以斜杠开头
+ * 如果程序中需要访问绝对路径，则不要直接使用 FileSystemResource 或 FileSystemXmlApplicationContext 来指定绝对路径。建议强制使用 file: 前缀来区分相对路径和绝对路径
  */
 public interface Resource extends InputStreamSource {
 

@@ -62,6 +62,7 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMappi
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  * @since 3.1
+ * @see WebMvcAutoConfiguration
  */
 public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMapping
 		implements MatchableHandlerMapping, EmbeddedValueResolverAware {

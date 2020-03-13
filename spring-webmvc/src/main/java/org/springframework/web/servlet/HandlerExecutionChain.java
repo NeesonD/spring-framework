@@ -35,6 +35,7 @@ import org.springframework.util.ObjectUtils;
  * @author Juergen Hoeller
  * @since 20.06.2003
  * @see HandlerInterceptor
+ * 过滤链模式
  */
 public class HandlerExecutionChain {
 
@@ -42,6 +43,7 @@ public class HandlerExecutionChain {
 
 	/**
 	 * 处理器
+	 * HandlerMethod
 	 */
 	private final Object handler;
 

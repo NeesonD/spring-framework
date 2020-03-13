@@ -62,6 +62,8 @@ import org.springframework.web.servlet.HandlerMapping;
  * @since 3.1
  * @param <T> the mapping for a {@link HandlerMethod} containing the conditions
  * needed to match the handler method to an incoming request.
+ * url 和 bean.method 的实现
+ *           通过 InitializingBean 来处理所有 bean，当 bean 符合条件的时候，将这种映射关系缓存起来
  */
 public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping implements InitializingBean {
 
@@ -200,6 +202,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	/**
 	 * Detects handler methods at initialization.
 	 * @see #initHandlerMethods
+	 * 映射关系的入口
 	 */
 	@Override
 	public void afterPropertiesSet() {
@@ -211,6 +214,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * @see #getCandidateBeanNames()
 	 * @see #processCandidateBean
 	 * @see #handlerMethodsInitialized
+	 * 统一处理所有的 bean，并保存 url 和 方法的映射关系
 	 */
 	protected void initHandlerMethods() {
 		// 获取所有的 bean
@@ -219,6 +223,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				processCandidateBean(beanName);
 			}
 		}
+		// 记录一下映射关系数量
 		handlerMethodsInitialized(getHandlerMethods());
 	}
 

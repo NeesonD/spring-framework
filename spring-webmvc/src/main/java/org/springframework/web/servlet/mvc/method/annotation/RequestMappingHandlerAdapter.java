@@ -801,7 +801,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		}
 		else {
 			// No synchronization on session demanded at all...
-			// 核心
+			// 执行目标方法
 			mav = invokeHandlerMethod(request, response, handlerMethod);
 		}
 
@@ -861,7 +861,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		try {
 			// webDataBinder 用于处理参数
 			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
-			// ServletInvocableHandlerMethod 组件
+			// ServletInvocableHandlerMethod 组件，封装了 入参和出参 处理器
 			ServletInvocableHandlerMethod invocableMethod = getServletInvocableHandlerMethod(handlerMethod,
 					binderFactory);
 
@@ -884,7 +884,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 				});
 				invocableMethod = invocableMethod.wrapConcurrentResult(result);
 			}
-
+			// 执行方法调用
 			invocableMethod.invokeAndHandle(webRequest, mavContainer);
 			if (asyncManager.isConcurrentHandlingStarted()) {
 				return null;

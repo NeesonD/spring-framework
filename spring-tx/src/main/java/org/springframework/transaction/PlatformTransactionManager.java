@@ -41,6 +41,7 @@ import org.springframework.lang.Nullable;
  * @since 16.05.2003
  * @see org.springframework.transaction.support.TransactionTemplate
  * @see org.springframework.transaction.interceptor.TransactionInterceptor
+ * 对于事务的 commit 和 rollback，其实都是标准的控制逻辑，因此可以抽象化
  */
 public interface PlatformTransactionManager extends TransactionManager {
 

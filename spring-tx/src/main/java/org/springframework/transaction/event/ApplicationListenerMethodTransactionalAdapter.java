@@ -42,6 +42,12 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * @since 4.2
  * @see ApplicationListenerMethodAdapter
  * @see TransactionalEventListener
+ * 执行的大致流程
+ * TransactionInterceptor -> TransactionManager.commit -> AbstractPlatformTransactionManager.processCommit
+ * -> TransactionSynchronizationUtils.trigger* -> TransactionSynchronizationManager.getSynchronizations
+ * -> TransactionSynchronization.* -> 各种 TransactionSynchronization 实现类的执行
+ *
+ * 而 TransactionSynchronization 注册则通过事件的响应来完成
  */
 class ApplicationListenerMethodTransactionalAdapter extends ApplicationListenerMethodAdapter {
 
@@ -124,12 +130,15 @@ class ApplicationListenerMethodTransactionalAdapter extends ApplicationListenerM
 
 		@Override
 		public void afterCompletion(int status) {
+			// commit 成功执行
 			if (this.phase == TransactionPhase.AFTER_COMMIT && status == STATUS_COMMITTED) {
 				processEvent();
 			}
+			// 失败执行
 			else if (this.phase == TransactionPhase.AFTER_ROLLBACK && status == STATUS_ROLLED_BACK) {
 				processEvent();
 			}
+			// 都执行
 			else if (this.phase == TransactionPhase.AFTER_COMPLETION) {
 				processEvent();
 			}

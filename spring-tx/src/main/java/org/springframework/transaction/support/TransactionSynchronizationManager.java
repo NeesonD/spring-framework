@@ -73,6 +73,7 @@ import org.springframework.util.Assert;
  * @see org.springframework.transaction.jta.JtaTransactionManager
  * @see org.springframework.jdbc.datasource.DataSourceTransactionManager
  * @see org.springframework.jdbc.datasource.DataSourceUtils#getConnection
+ * 事务同步管理器
  */
 public abstract class TransactionSynchronizationManager {
 

@@ -325,6 +325,15 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	// GET
 
+	/**
+	 * uriVariables 用来处理 uri
+	 * @param url the URL
+	 * @param responseType the type of the return value
+	 * @param uriVariables the variables to expand the template
+	 * @param <T>
+	 * @return
+	 * @throws RestClientException
+	 */
 	@Override
 	@Nullable
 	public <T> T getForObject(String url, Class<T> responseType, Object... uriVariables) throws RestClientException {
@@ -743,6 +752,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 	 * @param requestCallback object that prepares the request (can be {@code null})
 	 * @param responseExtractor object that extracts the return value from the response (can be {@code null})
 	 * @return an arbitrary object, as returned by the {@link ResponseExtractor}
+	 * 执行的地方
 	 */
 	@Nullable
 	protected <T> T doExecute(URI url, @Nullable HttpMethod method, @Nullable RequestCallback requestCallback,
@@ -854,6 +864,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
 	/**
 	 * Request callback implementation that prepares the request's accept headers.
+	 * 加 head，MediaType
 	 */
 	private class AcceptHeaderRequestCallback implements RequestCallback {
 

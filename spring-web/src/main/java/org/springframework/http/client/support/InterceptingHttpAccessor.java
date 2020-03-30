@@ -90,6 +90,7 @@ public abstract class InterceptingHttpAccessor extends HttpAccessor {
 	 * Overridden to expose an {@link InterceptingClientHttpRequestFactory}
 	 * if necessary.
 	 * @see #getInterceptors()
+	 * 这里重写了父类方法，所有的 RequestFactory 都会被包上 InterceptingClientHttpRequestFactory
 	 */
 	@Override
 	public ClientHttpRequestFactory getRequestFactory() {

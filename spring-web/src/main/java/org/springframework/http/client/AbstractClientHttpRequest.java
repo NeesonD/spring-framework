@@ -51,6 +51,7 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
 	public final ClientHttpResponse execute() throws IOException {
 		// 判断是否执行过
 		assertNotExecuted();
+		// AbstractBufferingClientHttpRequest
 		ClientHttpResponse result = executeInternal(this.headers);
 		this.executed = true;
 		return result;

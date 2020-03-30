@@ -77,7 +77,7 @@ class InterceptingClientHttpRequest extends AbstractBufferingClientHttpRequest {
 		return requestExecution.execute(this, bufferedOutput);
 	}
 
-
+	// 责任链模式
 	private class InterceptingRequestExecution implements ClientHttpRequestExecution {
 
 		private final Iterator<ClientHttpRequestInterceptor> iterator;
@@ -97,6 +97,7 @@ class InterceptingClientHttpRequest extends AbstractBufferingClientHttpRequest {
 				// 拦截器执行完之后，会执行这里
 				HttpMethod method = request.getMethod();
 				Assert.state(method != null, "No standard HTTP method");
+				// SimpleBufferingClientHttpRequest
 				ClientHttpRequest delegate = requestFactory.createRequest(request.getURI(), method);
 				request.getHeaders().forEach((key, value) -> delegate.getHeaders().addAll(key, value));
 				if (body.length > 0) {

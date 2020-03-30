@@ -67,6 +67,7 @@ final class SimpleBufferingClientHttpRequest extends AbstractBufferingClientHttp
 	protected ClientHttpResponse executeInternal(HttpHeaders headers, byte[] bufferedOutput) throws IOException {
 		addHeaders(this.connection, headers);
 		// JDK <1.8 doesn't support getOutputStream with HTTP DELETE
+		// HttpsURLConnectionImpl
 		if (getMethod() == HttpMethod.DELETE && bufferedOutput.length == 0) {
 			this.connection.setDoOutput(false);
 		}

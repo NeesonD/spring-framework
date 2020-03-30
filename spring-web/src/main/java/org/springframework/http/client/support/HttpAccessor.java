@@ -47,6 +47,9 @@ public abstract class HttpAccessor {
 	/** Logger available to subclasses. */
 	protected final Log logger = HttpLogging.forLogName(getClass());
 
+	/**
+	 * 这个是链接的工厂
+	 */
 	private ClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 
 

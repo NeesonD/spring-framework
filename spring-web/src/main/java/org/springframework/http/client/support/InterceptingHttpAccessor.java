@@ -43,10 +43,12 @@ import org.springframework.util.CollectionUtils;
  */
 public abstract class InterceptingHttpAccessor extends HttpAccessor {
 
-	// 拦截器
+	/**
+	 * 这个非常重要，loadbanalace 是通过 ClientHttpRequestInterceptor 实现的
+	 */
 	private final List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
 
-	// 实现适配
+	// 管理链接的
 	@Nullable
 	private volatile ClientHttpRequestFactory interceptingRequestFactory;
 

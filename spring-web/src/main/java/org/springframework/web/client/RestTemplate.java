@@ -90,6 +90,11 @@ import org.springframework.web.util.UriTemplateHandler;
  * @see RequestCallback
  * @see ResponseExtractor
  * @see ResponseErrorHandler
+ * RestOperations 定义了能做什么，InterceptingHttpAccessor 则定义了拦截器和 ClientHttpRequestFactory
+ * 可以看一下其它的 Template，基本都是类似的定义
+ * 1. *Operations
+ * 2. *Accessor
+ * 3. *Interceptor
  */
 public class RestTemplate extends InterceptingHttpAccessor implements RestOperations {
 
@@ -123,13 +128,24 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 		jsonbPresent = ClassUtils.isPresent("javax.json.bind.Jsonb", classLoader);
 	}
 
-	// 编解码
+	/**
+	 * 编解码器，下面几个组件有提供 set 方法，都是可以自定义扩展的
+	 */
 	private final List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
 
+	/**
+	 * 异常处理器，可以借鉴这种异常处理
+	 */
 	private ResponseErrorHandler errorHandler = new DefaultResponseErrorHandler();
 
+	/**
+	 * 可以看到组合类里面会有很多种 handler
+	 */
 	private UriTemplateHandler uriTemplateHandler;
 
+	/**
+	 * 提取器
+	 */
 	private final ResponseExtractor<HttpHeaders> headersExtractor = new HeadersExtractor();
 
 
@@ -312,6 +328,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 	@Override
 	@Nullable
 	public <T> T getForObject(String url, Class<T> responseType, Object... uriVariables) throws RestClientException {
+		// 接收请求的回调
 		RequestCallback requestCallback = acceptHeaderRequestCallback(responseType);
 		HttpMessageConverterExtractor<T> responseExtractor =
 				new HttpMessageConverterExtractor<>(responseType, getMessageConverters(), logger);

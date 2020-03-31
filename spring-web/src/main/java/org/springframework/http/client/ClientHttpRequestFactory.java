@@ -27,6 +27,7 @@ import org.springframework.http.HttpMethod;
  *
  * @author Arjen Poutsma
  * @since 3.0
+ * 装饰者模式
  */
 @FunctionalInterface
 public interface ClientHttpRequestFactory {
